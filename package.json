@@ -1,0 +1,19 @@
+{
+  "name": "d2l-ajax",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "bower install",
+    "serve": "polyserve --cors",
+    "test": "wct"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "bower": "^1.7.9",
+    "polyserve": "PolymerLabs/polyserve#permissive-cors-option",
+    "web-component-tester": "^4.2.2"
+  }
+}

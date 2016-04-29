@@ -1,0 +1,200 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="d2l-ajax">
+    <template>
+		<iron-ajax
+			id="request"
+			url="{{url}}"
+            params="{{params}}"
+            method="{{method}}"
+            headers="[[requestHeaders]]"
+            contentType="{{contentType}}"
+            body="{{body}}"
+            handleAs="{{handleAs}}"
+            withCredentials="{{withCredentials}}"
+            timeout="{{timeout}}"
+            last-error="{{lastError}}"
+			last-response="{{lastResponse}}"
+            on-error="onError"
+            on-request="onRequest"
+            on-response="onResponse"></iron-ajax>
+    </template>
+    <script>
+        Polymer({
+            is: 'd2l-ajax',
+            properties: {
+                auto: {
+                    type: Boolean,
+                    value: false
+                },
+                url: {
+                    type: String
+                },
+                params: {
+                  type: Object,
+                  value: function() {
+                    return {};
+                  }
+                },
+                method: {
+                    type: String,
+                    value: 'GET'
+                },
+                headers: {
+                    type: Object,
+                    value: function() {
+                        return {};
+                    }
+                },
+                contentType: {
+                    type: String,
+                    value: null
+                },
+                body: {
+                    type: Object,
+                    value: null
+                },
+                handleAs: {
+                  type: String,
+                  value: 'json'
+                },
+                withCredentials: {
+                  type: Boolean,
+                  value: false
+                },
+                timeout: {
+                  type: Number,
+                  value: 0
+                },
+                lastResponse: {
+                    type: Object,
+                    notify: true,
+                    readOnly: true
+                },
+                lastError: {
+                    type: Object,
+                    notify: true,
+                    readOnly: true
+                },
+
+                authToken: String,
+                xsrfToken: String,
+    			requestHeaders: {
+    				type: Object,
+    				computed: 'getRequestHeaders(authToken)'
+    			}
+            },
+            observers: [
+                '_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
+                    'body, handleAs, withCredentials, timeout, auto)'
+            ],
+            getRequestHeaders: function(authToken) {
+                var headers = {},
+                    header;
+
+                if (authToken) {
+                    headers.Authorization = 'Bearer ' + authToken;
+                }
+
+                if (this.headers instanceof Object) {
+                    for (header in this.headers) {
+                        headers[header] = this.headers[header].toString();
+                    }
+                }
+
+                return headers;
+            },
+            generateRequest: function() {
+                var url = this._parseUrl(this.url);
+
+                if (this._isRelativeUrl(url)) {
+                    this.$.request.generateRequest();
+                    return;
+                }
+
+                this._getAuthToken()
+                    .then(function(authToken) {
+                        this.$.request.generateRequest();
+                    }.bind(this));
+            },
+            onError: function(e) {
+                this.fire('error', e.detail);
+            },
+            onRequest: function(e) {
+                this.fire('request', e.detail);
+            },
+            onResponse: function(e) {
+                this.fire('response', e.detail);
+            },
+            _requestOptionsChanged: function() {
+                if (this.url == null) {
+                  return;
+                }
+                if (this.auto) {
+                  this.generateRequest();
+                }
+            },
+            _parseUrl: function (url) {
+                var link = document.createElement('a');
+                link.href = url;
+                return link;
+            },
+            _isRelativeUrl: function (url) {
+                return url.host === location.host
+                    && url.protocol === location.protocol;
+            },
+            _getAuthToken: function() {
+                if (this.authToken) {
+                    return Promise.resolve(this.authToken);
+                }
+
+                var self = this;
+
+                var authTokenRequest = function (xsrfToken) {
+                    var request = document.createElement('iron-request');
+                    return request
+                        .send({
+                            method: 'POST',
+                            url: '/d2l/lp/auth/oauth2/token',
+                            withCredentials: true,
+                            handleAs: 'json',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Csrf-Token': xsrfToken
+                            },
+                            body: "scope=*:*:*"
+                        })
+                        .then(function(res) {
+                            self.authToken = res.response.access_token;
+                            return res.response.access_token;
+                        });
+                };
+
+                return self._getXsrfToken()
+                    .then(authTokenRequest);
+            },
+            _getXsrfToken: function() {
+                if (this.xsrfToken) {
+                    return Promise.resolve(this.xsrfToken);
+                }
+
+                var self = this,
+                    xsrfRequest = document.createElement('iron-request');
+
+                var request = xsrfRequest
+                    .send({
+                        url: '/d2l/lp/auth/xsrf-tokens',
+                        handleAs: 'json',
+                        withCredentials: true
+                    })
+                    .then(function(res) {
+                        self.xsrfToken = res.response.referrerToken;
+                        return res.response.referrerToken;
+                    });
+
+                return request;
+            }
+        });
+    </script>
+</dom-module>

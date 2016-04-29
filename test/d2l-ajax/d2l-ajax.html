@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+		<script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../../web-component-tester/browser.js"></script>
+
+		<link rel="import" href="../../d2l-ajax.html">
+	</head>
+	<body>
+		<test-fixture id="d2l-ajax-fixture">
+			<template>
+				<d2l-ajax></d2l-ajax>
+			</template>
+		</test-fixture>
+
+		<test-fixture id="relative-path-fixture">
+			<template>
+				<d2l-ajax
+					url="/path/to/data"
+					></d2l-ajax>
+			</template>
+		</test-fixture>
+
+		<test-fixture id="absolute-path-fixture">
+			<template>
+				<d2l-ajax
+					url="https://api.example.com/data"
+					></d2l-ajax>
+			</template>
+		</test-fixture>
+
+		<test-fixture id="custom-headers-fixture">
+			<template>
+				<d2l-ajax
+					url="https://api.example.com/data"
+					headers='{ "Accept": "application/vnd.siren+json", "X-My-Header": "my value" }'
+					></d2l-ajax>
+			</template>
+		</test-fixture>
+
+		<script src="d2l-ajax.js"></script>
+	</body>
+</html>
