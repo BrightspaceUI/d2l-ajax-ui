@@ -1,6 +1,6 @@
 # &lt;d2l-ajax&gt;
 
-Wrapper for [iron-ajax](https://github.com/PolymerElements/iron-ajax) to simplify calling mirco-services.
+Wrapper for [iron-ajax](https://github.com/PolymerElements/iron-ajax), providing D2L authentication.
 Inspired by [superagent-d2l-session-auth](https://github.com/Brightspace/superagent-d2l-session-auth).
 
 ## Usage
