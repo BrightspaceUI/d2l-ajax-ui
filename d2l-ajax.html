@@ -22,6 +22,9 @@
         </iron-ajax>
     </template>
     <script>
+        /* global Promise */
+        'use strict';
+
         Polymer({
             is: 'd2l-ajax',
             properties: {
@@ -78,12 +81,30 @@
                     notify: true,
                     readOnly: true
                 },
+                scope: {
+                    type: String,
+                    value: '*:*:*'
+                },
 
                 authToken: String,
                 xsrfToken: String,
                 requestHeaders: {
                     type: Object,
                     computed: 'getRequestHeaders(authToken)'
+                },
+                cachedTokens: {
+                    type: Object,
+                    readOnly: true,
+                    value: function() {
+                        return {};
+                    }
+                },
+                inFlightRequests: {
+                    type: Object,
+                    readOnly: true,
+                    value: function () {
+                        return {};
+                    }
                 }
             },
             observers: [
@@ -115,7 +136,8 @@
                 }
 
                 this._getAuthToken()
-                    .then(function(authToken) {
+                    .then(function(token) {
+                        this.authToken = token;
                         this.$.request.generateRequest();
                     }.bind(this));
             },
@@ -145,11 +167,61 @@
                 return url.host === location.host
                     && url.protocol === location.protocol;
             },
+
+
+            /*
+             * Auth Token
+             */
+
             _getAuthToken: function() {
-                if (this.authToken) {
-                    return Promise.resolve(this.authToken);
+                var self = this,
+                    scope = this.scope;
+
+                return Promise
+                    .resolve()
+                    .then(function () {
+                        var cached = self._getCachedAuthToken.bind(self, scope);
+
+                        return cached()
+                            .catch(function () {
+                                return self._getAuthTokenDeDuped(scope)
+                                    .then(self._cacheToken.bind(self, scope))
+                                    .then(cached);
+                            });
+                    });
+            },
+            _getCachedAuthToken: function (scope) {
+                return Promise
+                    .resolve()
+                    .then(function () {
+                        var cached = this.cachedTokens[scope];
+                        if (cached) {
+                            if (!this._tokenExpired(cached)) {
+                                return cached.access_token;
+                            }
+
+                            delete this.cachedTokens[scope];
+                        }
+
+                        throw new Error('No cached token');
+                    }.bind(this));
+            },
+            _getAuthTokenDeDuped: function (scope) {
+                if (!this.inFlightRequests[scope]) {
+                    this.inFlightRequests[scope] = this._requestAuthToken(scope)
+                        .then(function (token) {
+                            delete this.inFlightRequests[scope];
+                            return token;
+                        }.bind(this))
+                        .catch(function (e) {
+                            delete this.inFlightRequests[scope];
+                            throw e;
+                        }.bind(this));
                 }
 
+                return this.inFlightRequests[scope];
+            },
+            _requestAuthToken: function (scope) {
                 var self = this;
 
                 var authTokenRequest = function (xsrfToken) {
@@ -164,17 +236,31 @@
                                 'Content-Type': 'application/x-www-form-urlencoded',
                                 'X-Csrf-Token': xsrfToken
                             },
-                            body: "scope=*:*:*"
+                            body: "scope=" + scope
                         })
                         .then(function(res) {
-                            self.authToken = res.response.access_token;
-                            return res.response.access_token;
+                            return res.response;
                         });
                 };
 
                 return self._getXsrfToken()
                     .then(authTokenRequest);
             },
+            _cacheToken: function (scope, token) {
+                this.cachedTokens[scope] = token;
+            },
+            _tokenExpired: function (token) {
+                return this._clock() > token.expires_at;
+            },
+            _clock: function () {
+                return (Date.now() / 1000) | 0;
+            },
+
+
+            /*
+             * XSRF Token
+             */
+
             _getXsrfToken: function() {
                 if (this.xsrfToken) {
                     return Promise.resolve(this.xsrfToken);

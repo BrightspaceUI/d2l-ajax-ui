@@ -1,14 +1,23 @@
 /* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
+function clock() {
+	return (Date.now() / 1000) | 0;
+}
+
 describe('smoke test', function() {
 	var server,
 		component,
+		defaultScope = "*:*:*",
+		authToken = {
+			access_token: 'such access wow',
+			expires_at: Number.MAX_VALUE
+		},
 		xsrfResponse = {
 			body: { referrerToken: 'foo' }
 		},
 		authTokenResponse = {
 			headers: { 'x-csrf-token': xsrfResponse.body.referrerToken },
-			body: { access_token: 'such access wow' }
+			body: { access_token: authToken.access_token, expires_at: authToken.expires_at }
 		};
 
 	beforeEach(function () {
@@ -63,10 +72,10 @@ describe('smoke test', function() {
 			component.xsrfToken = xsrfResponse.body.referrerToken;
 		});
 
-		afterEach(function () {
-			component.authToken = null;
+        afterEach(function () {
+			delete component.cachedTokens[defaultScope];
 			component.xsrfToken = null;
-		});
+        })
 
 		it('should send an auth token request when auth token does not exist', function (done) {
 			server.respondWith(
@@ -74,32 +83,52 @@ describe('smoke test', function() {
 				'/d2l/lp/auth/oauth2/token',
 				function (req) {
 					expect(req.requestHeaders['x-csrf-token']).to.equal(xsrfResponse.body.referrerToken);
-					expect(req.requestBody).to.equal('scope=*:*:*');
+					expect(req.requestBody).to.equal('scope=' + defaultScope);
 					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
 				});
 
-			component._getAuthToken()
-            	.then(function(authToken) {
-					expect(authToken).to.equal(authTokenResponse.body.access_token);
-					expect(component.authToken).to.equal(authTokenResponse.body.access_token);
-					done();
-				});
+            component._getAuthToken()
+                .then(function(authToken) {
+                    expect(authToken).to.equal(authTokenResponse.body.access_token);
+                    done();
+                });
 		});
 
-		it('should use auth token if it exists', function (done) {
-			component.authToken = authTokenResponse.body.access_token;
-			component._getAuthToken()
-				.then(function (authToken) {
-					expect(authToken).to.equal(component.authToken);
-					done();
-				});
+		it('should send an auth token request when auth token is expired', function (done) {
+            server.respondWith(
+				'POST',
+				'/d2l/lp/auth/oauth2/token',
+				function (req) {
+					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
+				}
+            );
+
+			component.cachedTokens[defaultScope] = {
+				access_token: 'token',
+				expires_at: clock() - 1
+			};
+
+            component._getAuthToken()
+                .then(function(authToken) {
+                    expect(authToken).to.equal(authTokenResponse.body.access_token);
+                    done();
+                });
 		});
+
+        it('should use cached auth token if it exists', function (done) {
+			component.cachedTokens[defaultScope] = authToken;
+            component._getAuthToken()
+                .then(function (token) {
+					expect(token).to.equal(authToken.access_token);
+                    done();
+                });
+        });
 	});
 
-	describe('generateRequest', function () {
-		afterEach(function () {
-			component.authToken = null;
-		});
+    describe('generateRequest', function () {
+        afterEach(function () {
+            delete component.cachedTokens[defaultScope];
+        });
 
 		it('should send a request with no auth header when url is relative', function (done) {
 			component = fixture('relative-path-fixture');
@@ -116,15 +145,15 @@ describe('smoke test', function() {
 				component.generateRequest();
 		});
 
-		it('should send a request with auth header when url is absolute', function (done) {
-			component = fixture('absolute-path-fixture');
-			component.authToken = authTokenResponse.body.access_token;
+        it('should send a request with auth header when url is absolute', function (done) {
+            component = fixture('absolute-path-fixture');
+			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
 				'GET',
 				component.url,
 				function (req) {
-					expect(req.requestHeaders['authorization']).to.equal('Bearer ' + component.authToken);
+                    expect(req.requestHeaders['authorization']).to.equal('Bearer ' + authToken.access_token);
 					req.respond(200);
 					done();
 				});
@@ -132,9 +161,9 @@ describe('smoke test', function() {
 			component.generateRequest();
         });
 
-		it('should include specified headers in the request', function (done) {
-			component = fixture('custom-headers-fixture');
-			component.authToken = authTokenResponse.body.access_token;
+        it('should include specified headers in the request', function (done) {
+            component = fixture('custom-headers-fixture');
+			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
 				'GET',
@@ -146,7 +175,7 @@ describe('smoke test', function() {
 					done();
 				});
 
-			component.generateRequest();
-		});
-	});
+            component.generateRequest();
+        });
+    });
 });

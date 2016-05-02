@@ -6,13 +6,18 @@
   "scripts": {
     "postinstall": "bower install",
     "serve": "polyserve --cors",
-    "test": "wct"
+    "test:lint:js": "eslint test/ --ext .js",
+    "test:lint:html": "eslint *.html",
+    "test": "npm run test:lint:js && npm run test:lint:html && wct",
+    "test:no-lint": "wct -p"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.7.9",
+    "eslint": "^2.4.0",
+    "eslint-plugin-html": "^1.4.0",
     "polyserve": "PolymerLabs/polyserve#permissive-cors-option",
     "web-component-tester": "^4.2.2"
   }
