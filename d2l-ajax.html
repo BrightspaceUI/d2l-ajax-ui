@@ -3,9 +3,9 @@
 
 <dom-module id="d2l-ajax">
     <template>
-		<iron-ajax
-			id="request"
-			url="{{url}}"
+        <iron-ajax
+            id="request"
+            url="{{url}}"
             params="{{params}}"
             method="{{method}}"
             headers="[[requestHeaders]]"
@@ -15,10 +15,11 @@
             withCredentials="{{withCredentials}}"
             timeout="{{timeout}}"
             last-error="{{lastError}}"
-			last-response="{{lastResponse}}"
+            last-response="{{lastResponse}}"
             on-error="onError"
             on-request="onRequest"
-            on-response="onResponse"></iron-ajax>
+            on-response="onResponse">
+        </iron-ajax>
     </template>
     <script>
         Polymer({
@@ -32,10 +33,10 @@
                     type: String
                 },
                 params: {
-                  type: Object,
-                  value: function() {
-                    return {};
-                  }
+                    type: Object,
+                    value: function() {
+                        return {};
+                    }
                 },
                 method: {
                     type: String,
@@ -56,16 +57,16 @@
                     value: null
                 },
                 handleAs: {
-                  type: String,
-                  value: 'json'
+                    type: String,
+                    value: 'json'
                 },
                 withCredentials: {
-                  type: Boolean,
-                  value: false
+                    type: Boolean,
+                    value: false
                 },
                 timeout: {
-                  type: Number,
-                  value: 0
+                    type: Number,
+                    value: 0
                 },
                 lastResponse: {
                     type: Object,
@@ -80,10 +81,10 @@
 
                 authToken: String,
                 xsrfToken: String,
-    			requestHeaders: {
-    				type: Object,
-    				computed: 'getRequestHeaders(authToken)'
-    			}
+                requestHeaders: {
+                    type: Object,
+                    computed: 'getRequestHeaders(authToken)'
+                }
             },
             observers: [
                 '_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
@@ -129,10 +130,10 @@
             },
             _requestOptionsChanged: function() {
                 if (this.url == null) {
-                  return;
+                    return;
                 }
                 if (this.auto) {
-                  this.generateRequest();
+                    this.generateRequest();
                 }
             },
             _parseUrl: function (url) {
