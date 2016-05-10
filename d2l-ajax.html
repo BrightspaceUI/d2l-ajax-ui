@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-localstorage/iron-localstorage.html">
 
 <dom-module id="d2l-ajax">
     <template>
@@ -18,8 +19,13 @@
             last-response="{{lastResponse}}"
             on-error="onError"
             on-request="onRequest"
-            on-response="onResponse">
-        </iron-ajax>
+            on-response="onResponse"></iron-ajax>
+
+        <iron-localstorage
+            name="XSRF.Token"
+            value="{{xsrfToken}}"
+            use-raw="true"
+            ></iron-localstorage>
     </template>
     <script>
         /* global Promise */
@@ -276,7 +282,7 @@
                         withCredentials: true
                     })
                     .then(function(res) {
-                        self.xsrfToken = res.response.referrerToken;
+                        self.set('xsrfToken', res.response.referrerToken);
                         return res.response.referrerToken;
                     });
 

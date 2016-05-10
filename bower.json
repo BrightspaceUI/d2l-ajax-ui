@@ -12,7 +12,8 @@
   ],
   "dependencies": {
     "polymer": "^1.4.0",
-    "iron-ajax": "PolymerElements/iron-ajax#^1.2.0"
+    "iron-ajax": "PolymerElements/iron-ajax#^1.2.0",
+    "iron-localstorage": "PolymerElements/iron-localstorage#^1.0.5"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"

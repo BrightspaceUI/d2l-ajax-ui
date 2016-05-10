@@ -12,11 +12,13 @@ describe('smoke test', function() {
 			access_token: 'such access wow',
 			expires_at: Number.MAX_VALUE
 		},
+		xsrfTokenKey = 'XSRF.Token',
+		xsrfTokenValue = 'foo',
 		xsrfResponse = {
-			body: { referrerToken: 'foo' }
+			body: { referrerToken: xsrfTokenValue }
 		},
 		authTokenResponse = {
-			headers: { 'x-csrf-token': xsrfResponse.body.referrerToken },
+			headers: { 'x-csrf-token': xsrfTokenValue },
 			body: { access_token: authToken.access_token, expires_at: authToken.expires_at }
 		};
 
@@ -24,24 +26,35 @@ describe('smoke test', function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
+		setXsrfToken(xsrfTokenValue);
+
 		component = fixture('d2l-ajax-fixture');
+		component.$$('iron-localstorage').reload();
 	});
 
 	afterEach(function () {
 		server.restore();
+		clearXsrfToken();
 	});
 
 	it('should load', function () {
 		expect(component).to.exist;
 	});
 
-	describe('XSRF request', function () {
-		afterEach(function () {
-			component.xsrfToken = null;
-		});
+	function clearXsrfToken() {
+		window.localStorage.removeItem(xsrfTokenKey);
+	}
 
-		it('should send a XSRF request when the XSRF token does not exist', function (done) {
-			server.respondWith(
+	function setXsrfToken(value) {
+		window.localStorage.setItem(xsrfTokenKey, value);
+	}
+
+	describe('XSRF request', function () {
+		it('should send a XSRF request when the XSRF token does not exist in local storage', function (done) {
+			clearXsrfToken();
+			component.$$('iron-localstorage').reload();
+
+            server.respondWith(
 				'GET',
 				'/d2l/lp/auth/xsrf-tokens',
 				function (req) {
@@ -56,25 +69,21 @@ describe('smoke test', function() {
 				});
 		});
 
-		it('should use xsrf token if it exists', function (done) {
-			component.xsrfToken = xsrfResponse.body.referrerToken;
+        it('should use xsrf token if it exists in local storage', function (done) {
+			setXsrfToken('oh yeah, awesome');
+			component.$$('iron-localstorage').reload();
 
-			component._getXsrfToken()
-				.then(function(xsrfToken) {
-					expect(xsrfToken).to.equal(component.xsrfToken);
-					done();
-				});
-		});
+            component._getXsrfToken()
+                .then(function(xsrfToken) {
+                    expect(xsrfToken).to.equal('oh yeah, awesome');
+                    done();
+                });
+        });
 	});
 
-	describe('Auth token request', function () {
-		beforeEach(function () {
-			component.xsrfToken = xsrfResponse.body.referrerToken;
-		});
-
+    describe('Auth token request', function () {
         afterEach(function () {
 			delete component.cachedTokens[defaultScope];
-			component.xsrfToken = null;
         })
 
 		it('should send an auth token request when auth token does not exist', function (done) {
@@ -130,8 +139,9 @@ describe('smoke test', function() {
             delete component.cachedTokens[defaultScope];
         });
 
-		it('should send a request with no auth header when url is relative', function (done) {
-			component = fixture('relative-path-fixture');
+        it('should send a request with no auth header when url is relative', function (done) {
+            component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -147,6 +157,7 @@ describe('smoke test', function() {
 
         it('should send a request with auth header when url is absolute', function (done) {
             component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
 			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
@@ -163,6 +174,7 @@ describe('smoke test', function() {
 
         it('should include specified headers in the request', function (done) {
             component = fixture('custom-headers-fixture');
+			component.$$('iron-localstorage').reload();
 			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
@@ -172,8 +184,9 @@ describe('smoke test', function() {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					expect(req.requestHeaders['x-my-header']).to.equal('my value');
 					req.respond(200);
-					done();
-				});
+                    done();
+				}
+            );
 
             component.generateRequest();
         });
