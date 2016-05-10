@@ -1,5 +1,5 @@
 {
-  "name": "d2l-ajax-ui",
+  "name": "d2l-ajax",
   "description": "Wrapper around Polymer's iron-ajax, providing D2L authentication",
   "license": "Apache-2.0",
   "private": true,
