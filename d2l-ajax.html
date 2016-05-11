@@ -111,12 +111,25 @@
                     value: function () {
                         return {};
                     }
+                },
+                sessionChangedHandler: {
+                    type: Object,
+                    readOnly: true,
+                    value: function () {
+                        return this._onSessionChanged.bind(this);
+                    }
                 }
             },
             observers: [
                 '_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
                     'body, handleAs, withCredentials, timeout, auto)'
             ],
+            attached: function () {
+                window.addEventListener('storage', this.sessionChangedHandler);
+            },
+            detached: function () {
+                window.removeEventListener('storage', this.sessionChangedHandler);
+            },
             getRequestHeaders: function(authToken) {
                 var headers = {},
                     header;
@@ -260,6 +273,20 @@
             },
             _clock: function () {
                 return (Date.now() / 1000) | 0;
+            },
+            _onSessionChanged: function (e) {
+                switch (e.key) {
+                    case 'Session.Expired':
+                    case 'Session.UserId':
+                        this._resetAuthTokenCaches();
+                        break;
+                    default:
+                        break;
+                }
+            },
+            _resetAuthTokenCaches: function () {
+                this._setCachedTokens(Object.create(null));
+                this._setInFlightRequests(Object.create(null));
             },
 
 
