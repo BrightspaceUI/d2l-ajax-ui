@@ -188,5 +188,23 @@ describe('smoke test', function() {
 
 			component.generateRequest();
 		});
+
+		it('should include specified headers in the request for relative path', function (done) {
+			component = fixture('custom-headers-fixture-relative-url');
+			component.$$('iron-localstorage').reload();
+			component.cachedTokens[defaultScope] = authToken;
+
+			server.respondWith(
+				'GET',
+				component.url,
+				function (req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					expect(req.requestHeaders['x-my-header']).to.equal('my value');
+					req.respond(200);
+					done();
+				});
+
+			component.generateRequest();
+		});
 	});
 });
