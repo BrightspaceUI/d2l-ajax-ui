@@ -9,7 +9,7 @@
             url="{{url}}"
             params="{{params}}"
             method="{{method}}"
-            headers="[[requestHeaders]]"
+            headers="{{computeHeaders(headers, authToken)}}"
             contentType="{{contentType}}"
             body="{{body}}"
             handleAs="{{handleAs}}"
@@ -92,12 +92,13 @@
                     value: '*:*:*'
                 },
 
-                authToken: String,
-                xsrfToken: String,
-                requestHeaders: {
-                    type: Object,
-                    computed: 'getRequestHeaders(authToken)'
+                authToken: {
+                    type: String,
+                    value: function() {
+                        return null;
+                    }
                 },
+                xsrfToken: String,
                 cachedTokens: {
                     type: Object,
                     readOnly: true,
@@ -130,21 +131,21 @@
             detached: function () {
                 window.removeEventListener('storage', this.sessionChangedHandler);
             },
-            getRequestHeaders: function(authToken) {
-                var headers = {},
+            computeHeaders: function(headers, authToken) {
+                var result = {},
                     header;
 
                 if (authToken) {
-                    headers.Authorization = 'Bearer ' + authToken;
+                    result.Authorization = 'Bearer ' + authToken;
                 }
 
-                if (this.headers instanceof Object) {
-                    for (header in this.headers) {
-                        headers[header] = this.headers[header].toString();
+                if (headers instanceof Object) {
+                    for (header in headers) {
+                        result[header] = headers[header].toString();
                     }
                 }
 
-                return headers;
+                return result;
             },
             generateRequest: function() {
                 var url = this._parseUrl(this.url);

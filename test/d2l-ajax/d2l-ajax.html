@@ -40,6 +40,15 @@
 			</template>
 		</test-fixture>
 
+		<test-fixture id="custom-headers-fixture-relative-url">
+			<template>
+				<d2l-ajax
+					url="/path/to/data"
+					headers='{ "Accept": "application/vnd.siren+json", "X-My-Header": "my value" }'
+					></d2l-ajax>
+			</template>
+		</test-fixture>
+
 		<script src="d2l-ajax.js"></script>
 	</body>
 </html>
