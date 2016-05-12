@@ -1,37 +1,59 @@
 /* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
+function clock() {
+	return (Date.now() / 1000) | 0;
+}
+
 describe('smoke test', function() {
 	var server,
 		component,
+		defaultScope = "*:*:*",
+		authToken = {
+			access_token: 'such access wow',
+			expires_at: Number.MAX_VALUE
+		},
+		xsrfTokenKey = 'XSRF.Token',
+		xsrfTokenValue = 'foo',
 		xsrfResponse = {
-			body: { referrerToken: 'foo' }
+			body: { referrerToken: xsrfTokenValue }
 		},
 		authTokenResponse = {
-			headers: { 'x-csrf-token': xsrfResponse.body.referrerToken },
-			body: { access_token: 'such access wow' }
+			headers: { 'x-csrf-token': xsrfTokenValue },
+			body: { access_token: authToken.access_token, expires_at: authToken.expires_at }
 		};
 
 	beforeEach(function () {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
+		setXsrfToken(xsrfTokenValue);
+
 		component = fixture('d2l-ajax-fixture');
+		component.$$('iron-localstorage').reload();
 	});
 
 	afterEach(function () {
 		server.restore();
+		clearXsrfToken();
 	});
 
 	it('should load', function () {
 		expect(component).to.exist;
 	});
 
-	describe('XSRF request', function () {
-		afterEach(function () {
-			component.xsrfToken = null;
-		});
+	function clearXsrfToken() {
+		window.localStorage.removeItem(xsrfTokenKey);
+	}
 
-		it('should send a XSRF request when the XSRF token does not exist', function (done) {
+	function setXsrfToken(value) {
+		window.localStorage.setItem(xsrfTokenKey, value);
+	}
+
+	describe('XSRF request', function () {
+		it('should send a XSRF request when the XSRF token does not exist in local storage', function (done) {
+			clearXsrfToken();
+			component.$$('iron-localstorage').reload();
+
 			server.respondWith(
 				'GET',
 				'/d2l/lp/auth/xsrf-tokens',
@@ -47,25 +69,21 @@ describe('smoke test', function() {
 				});
 		});
 
-		it('should use xsrf token if it exists', function (done) {
-			component.xsrfToken = xsrfResponse.body.referrerToken;
+		it('should use xsrf token if it exists in local storage', function (done) {
+			setXsrfToken('oh yeah, awesome');
+			component.$$('iron-localstorage').reload();
 
 			component._getXsrfToken()
 				.then(function(xsrfToken) {
-					expect(xsrfToken).to.equal(component.xsrfToken);
+					expect(xsrfToken).to.equal('oh yeah, awesome');
 					done();
 				});
 		});
 	});
 
 	describe('Auth token request', function () {
-		beforeEach(function () {
-			component.xsrfToken = xsrfResponse.body.referrerToken;
-		});
-
 		afterEach(function () {
-			component.authToken = null;
-			component.xsrfToken = null;
+			delete component.cachedTokens[defaultScope];
 		});
 
 		it('should send an auth token request when auth token does not exist', function (done) {
@@ -74,23 +92,42 @@ describe('smoke test', function() {
 				'/d2l/lp/auth/oauth2/token',
 				function (req) {
 					expect(req.requestHeaders['x-csrf-token']).to.equal(xsrfResponse.body.referrerToken);
-					expect(req.requestBody).to.equal('scope=*:*:*');
+					expect(req.requestBody).to.equal('scope=' + defaultScope);
 					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
 				});
 
 			component._getAuthToken()
-            	.then(function(authToken) {
+				.then(function(authToken) {
 					expect(authToken).to.equal(authTokenResponse.body.access_token);
-					expect(component.authToken).to.equal(authTokenResponse.body.access_token);
 					done();
 				});
 		});
 
-		it('should use auth token if it exists', function (done) {
-			component.authToken = authTokenResponse.body.access_token;
+		it('should send an auth token request when auth token is expired', function (done) {
+			server.respondWith(
+				'POST',
+				'/d2l/lp/auth/oauth2/token',
+				function (req) {
+					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
+				});
+
+			component.cachedTokens[defaultScope] = {
+				access_token: 'token',
+				expires_at: clock() - 1
+			};
+
 			component._getAuthToken()
-				.then(function (authToken) {
-					expect(authToken).to.equal(component.authToken);
+				.then(function(authToken) {
+					expect(authToken).to.equal(authTokenResponse.body.access_token);
+					done();
+				});
+		});
+
+		it('should use cached auth token if it exists', function (done) {
+			component.cachedTokens[defaultScope] = authToken;
+			component._getAuthToken()
+				.then(function (token) {
+					expect(token).to.equal(authToken.access_token);
 					done();
 				});
 		});
@@ -98,11 +135,12 @@ describe('smoke test', function() {
 
 	describe('generateRequest', function () {
 		afterEach(function () {
-			component.authToken = null;
+			delete component.cachedTokens[defaultScope];
 		});
 
 		it('should send a request with no auth header when url is relative', function (done) {
 			component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -118,23 +156,25 @@ describe('smoke test', function() {
 
 		it('should send a request with auth header when url is absolute', function (done) {
 			component = fixture('absolute-path-fixture');
-			component.authToken = authTokenResponse.body.access_token;
+			component.$$('iron-localstorage').reload();
+			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
 				'GET',
 				component.url,
 				function (req) {
-					expect(req.requestHeaders['authorization']).to.equal('Bearer ' + component.authToken);
+					expect(req.requestHeaders['authorization']).to.equal('Bearer ' + authToken.access_token);
 					req.respond(200);
 					done();
 				});
 
 			component.generateRequest();
-        });
+		});
 
 		it('should include specified headers in the request', function (done) {
 			component = fixture('custom-headers-fixture');
-			component.authToken = authTokenResponse.body.access_token;
+			component.$$('iron-localstorage').reload();
+			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
 				'GET',
