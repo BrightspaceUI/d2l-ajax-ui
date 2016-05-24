@@ -184,8 +184,11 @@
                 return link;
             },
             _isRelativeUrl: function (url) {
-                return url.host === location.host
-                    && url.protocol === location.protocol;
+                // In IE, relative paths have no host or protocol
+                return !url.host
+                    || !url.protocol
+                    || (url.host === location.host
+                        && url.protocol === location.protocol);
             },
 
 
