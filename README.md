@@ -1,5 +1,7 @@
 # &lt;d2l-ajax&gt;
 
+[![Build status][ci-image]][ci-url]
+
 Wrapper for [iron-ajax](https://github.com/PolymerElements/iron-ajax), providing D2L authentication.
 Inspired by [superagent-d2l-session-auth](https://github.com/Brightspace/superagent-d2l-session-auth).
 
@@ -83,3 +85,6 @@ internal sealed class Renderer : IHtmlView {
 
 }
 ```
+
+[ci-url]: https://travis-ci.org/Brightspace/d2l-ajax-ui
+[ci-image]: https://travis-ci.org/Brightspace/d2l-ajax-ui.svg?branch=master
