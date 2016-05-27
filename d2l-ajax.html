@@ -159,6 +159,7 @@
                         this.$.request.generateRequest();
                     }.bind(this))
                     .catch(function (e) {
+                        this.lastError = e;
                         this.onError(e);
                     }.bind(this));
             },

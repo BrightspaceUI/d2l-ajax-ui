@@ -93,7 +93,8 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('error', function (e) {
-				expect(e).to.be.defined;
+				expect(e).to.not.be.undefined;
+				expect(component.lastError).to.not.be.undefined;
 				done();
 			});
 
@@ -164,7 +165,8 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('error', function (e) {
-				expect(e).to.be.defined;
+				expect(e).to.not.be.undefined;
+				expect(component.lastError).to.not.be.undefined;
 				done();
 			});
 
@@ -258,7 +260,7 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('response', function () {
-				expect(component.lastResponse).to.be.defined;
+				expect(component.lastResponse).to.not.be.undefined;
 				done();
 			});
 
@@ -277,7 +279,7 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('error', function () {
-				expect(component.lastError).to.be.defined;
+				expect(component.lastError).to.not.be.undefined;
 				done();
 			});
 
