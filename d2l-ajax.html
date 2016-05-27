@@ -157,10 +157,17 @@
                     .then(function(token) {
                         this.authToken = token;
                         this.$.request.generateRequest();
+                    }.bind(this))
+                    .catch(function (e) {
+                        this.onError(e);
                     }.bind(this));
             },
             onError: function(e) {
-                this.fire('error', e.detail);
+                var data = e;
+                if (e && e.detail) {
+                    data = e.detail;
+                }
+                this.fire('error', data);
             },
             onRequest: function(e) {
                 this.fire('request', e.detail);

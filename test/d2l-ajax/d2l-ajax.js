@@ -79,6 +79,26 @@ describe('smoke test', function() {
 					done();
 				});
 		});
+
+		it('should fire error event if XSRF request fails', function (done) {
+			clearXsrfToken();
+			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				function (req) {
+					req.respond(404);
+				});
+
+			component.addEventListener('error', function (e) {
+				expect(e).to.be.defined;
+				done();
+			});
+
+			component.generateRequest();
+		});
 	});
 
 	describe('Auth token request', function () {
@@ -130,6 +150,25 @@ describe('smoke test', function() {
 					expect(token).to.equal(authToken.access_token);
 					done();
 				});
+		});
+
+		it('should fire error event if auth token request fails', function (done) {
+			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'POST',
+				'/d2l/lp/auth/oauth2/token',
+				function (req) {
+					req.respond(404);
+				});
+
+			component.addEventListener('error', function (e) {
+				expect(e).to.be.defined;
+				done();
+			});
+
+			component.generateRequest();
 		});
 	});
 
