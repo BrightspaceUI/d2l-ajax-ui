@@ -206,5 +206,43 @@ describe('smoke test', function() {
 
 			component.generateRequest();
 		});
+
+		it('should set lastResponse after successful request', function (done) {
+			component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				component.url,
+				function (req) {
+					req.respond(200);
+				});
+
+			component.addEventListener('response', function () {
+				expect(component.lastResponse).to.be.defined;
+				done();
+			});
+
+			component.generateRequest();
+		});
+
+		it('should set lastError after unsuccessful request', function (done) {
+			component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				component.url,
+				function (req) {
+					req.respond(404);
+				});
+
+			component.addEventListener('error', function () {
+				expect(component.lastError).to.be.defined;
+				done();
+			});
+
+			component.generateRequest();
+		});
 	});
 });
