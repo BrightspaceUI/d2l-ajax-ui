@@ -79,6 +79,27 @@ describe('smoke test', function() {
 					done();
 				});
 		});
+
+		it('should fire error event if XSRF request fails', function (done) {
+			clearXsrfToken();
+			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				function (req) {
+					req.respond(404);
+				});
+
+			component.addEventListener('error', function (e) {
+				expect(e).to.not.be.undefined;
+				expect(component.lastError).to.not.be.undefined;
+				done();
+			});
+
+			component.generateRequest();
+		});
 	});
 
 	describe('Auth token request', function () {
@@ -130,6 +151,26 @@ describe('smoke test', function() {
 					expect(token).to.equal(authToken.access_token);
 					done();
 				});
+		});
+
+		it('should fire error event if auth token request fails', function (done) {
+			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'POST',
+				'/d2l/lp/auth/oauth2/token',
+				function (req) {
+					req.respond(404);
+				});
+
+			component.addEventListener('error', function (e) {
+				expect(e).to.not.be.undefined;
+				expect(component.lastError).to.not.be.undefined;
+				done();
+			});
+
+			component.generateRequest();
 		});
 	});
 
@@ -219,7 +260,7 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('response', function () {
-				expect(component.lastResponse).to.be.defined;
+				expect(component.lastResponse).to.not.be.undefined;
 				done();
 			});
 
@@ -238,7 +279,7 @@ describe('smoke test', function() {
 				});
 
 			component.addEventListener('error', function () {
-				expect(component.lastError).to.be.defined;
+				expect(component.lastError).to.not.be.undefined;
 				done();
 			});
 
