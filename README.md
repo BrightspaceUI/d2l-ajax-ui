@@ -16,6 +16,7 @@ See the iron-ajax [documentation](https://elements.polymer-project.org/elements/
     headers='{ "Accept": "application/vnd.siren+json\" }'
     handle-as="json"
     on-response="handleResponse"
+    last-response="{{response}}"
     ></d2l-ajax>
 ```
 
@@ -44,47 +45,33 @@ polyserve -H my-machine-name
 ```
 
 Currently the demo page is mostly not useful since this component is meant to be hosted in an LE.
-The easiest way to do that right now is to hack the `PinnedCoursesWidget.cs` file to serve this component instead of `d2l-my-courses`.
+The easiest way to do that right now is to use `bower link` in conjunction with [brightspace-integration](https://github.com/Brightspace/brightspace-integration) and the [d2l-my-courses](https://github.com/Brightspace/d2l-my-courses-ui) web component.
 
-**\le\manageCourses\D2L.LE.ManageCourses\Web\Desktop\Widget\PinnedCoursesWidget.cs**
-```cs
-internal sealed class Renderer : IHtmlView {
+1) Clone [brightspace-integration](https://github.com/Brightspace/brightspace-integration)
 
-	private readonly UrlLocation m_myCoursesImportUrlLocation;
-	//private const string m_webComponentName = "d2l-my-courses";
-	private const string m_webComponentName = "d2l-ajax";
+2) In brightspace-integration repo, ensure you're in the correct branch (c12i12)
 
-	public Renderer(
-			IBsiBaseLocationProvider bsiBaseLocationProvider,
-			long orgId
-	) {
+3) In d2l-ajax-ui directory, run
 
-		string myCoursesWebComponentUrl =
-			String.Format(
-					"{0}{1}.html",
-					"http://my-machine-name:8080/components/d2l-ajax/",
-					m_webComponentName
-				);
-
-		m_myCoursesImportUrlLocation = new UrlLocation( myCoursesWebComponentUrl );
-	}
-
-	void IHtmlView.Render( IHtmlRenderContext rc ) {
-
-		ImportStylePageElement myCoursesStylePageElement = new ImportStylePageElement( m_myCoursesImportUrlLocation );
-
-		rc.Style.Loader.AddStyleElement( myCoursesStylePageElement );
-
-		rc.Writer.WriteTagBegin( m_webComponentName );
-		rc.Writer.WriteAttribute( "auto", "" );
-		rc.Writer.WriteAttribute( "url", "http://my-machine-name:3000/enrollments" );
-		rc.Writer.WriteAttribute( "headers", "{ \"Accept\": \"application/vnd.siren+json\"}" );
-		rc.Writer.WriteTagBeginRightChar();
-		rc.Writer.WriteTagEnd( m_webComponentName );
-	}
-
-}
+```shell
+bower link
 ```
+to allow it to be linked from brightspace-integration
+
+4) In brightspace-integration directory, run
+
+```shell
+bower link d2l-ajax
+```
+to link to the local d2l-ajax project
+
+5) Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-ajax)
+
+6) Create a homepage in the LMS that contains the new My Courses widget, AKA [d2l-my-courses](https://github.com/Brightspace/d2l-my-courses-ui), and test d2l-ajax via that component.
+
+Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
+
+Under Windows, you will likely also run into a problem in brightspace-integration where web-component-shards will fail due to the 'tmp' directory not being able to be deleted, preventing 'npm run serve' from succeeding. A simple workaround is to run the contents of the npm 'serve' script directly after building, and removing the tmp directory manually.
 
 [ci-url]: https://travis-ci.org/Brightspace/d2l-ajax-ui
 [ci-image]: https://travis-ci.org/Brightspace/d2l-ajax-ui.svg?branch=master
