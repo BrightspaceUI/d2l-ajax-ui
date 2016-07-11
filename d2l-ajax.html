@@ -223,7 +223,8 @@
                 return Promise
                     .resolve()
                     .then(function () {
-                        var cached = this.cachedTokens[scope];
+                        var cached = JSON.parse(window.sessionStorage.getItem(scope)) || this.cachedTokens[scope];
+
                         if (cached) {
                             if (!this._tokenExpired(cached)) {
                                 return cached.access_token;
@@ -276,6 +277,7 @@
                     .then(authTokenRequest);
             },
             _cacheToken: function (scope, token) {
+                window.sessionStorage.setItem(scope, JSON.stringify(token));
                 this.cachedTokens[scope] = token;
             },
             _tokenExpired: function (token) {

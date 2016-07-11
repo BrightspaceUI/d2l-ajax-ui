@@ -144,6 +144,15 @@ describe('smoke test', function() {
 				});
 		});
 
+		it('should use sessionStorage token if it exists', function (done) {
+			window.sessionStorage[defaultScope] = JSON.stringify(authToken);
+			component._getAuthToken()
+				.then(function (token) {
+					expect(token).to.equal(authToken.access_token);
+					done();
+				});
+		});
+
 		it('should use cached auth token if it exists', function (done) {
 			component.cachedTokens[defaultScope] = authToken;
 			component._getAuthToken()
