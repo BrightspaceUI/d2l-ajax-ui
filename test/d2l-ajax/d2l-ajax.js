@@ -197,11 +197,35 @@ describe('smoke test', function() {
 				component.url,
 				function (req) {
 					expect(req.requestHeaders['authorization']).to.not.be.defined;
+					expect(req.requestHeaders['x-csrf-token']).to.not.be.defined;
 					req.respond(200);
 					done();
 				});
 
-				component.generateRequest();
+			component.generateRequest();
+		});
+
+		it('should send a request with XSRF header when url is relative', function(done) {
+			component = fixture('relative-put-fixture');
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				function (req) {
+					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
+				});
+
+			server.respondWith(
+				'PUT',
+				component.url,
+				function(req) {
+					expect(req.requestHeaders['x-csrf-token']).to.equal('foo');
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					done();
+				});
+
+			component.generateRequest();
 		});
 
 		it('should send a request with auth header when url is absolute', function (done) {
