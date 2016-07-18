@@ -3,330 +3,338 @@
 <link rel="import" href="../iron-localstorage/iron-localstorage.html">
 
 <dom-module id="d2l-ajax">
-    <template>
-        <iron-ajax
-            id="request"
-            url="{{url}}"
-            params="{{params}}"
-            method="{{method}}"
-            headers="{{computeHeaders(headers, authToken)}}"
-            contentType="{{contentType}}"
-            body="{{body}}"
-            handleAs="{{handleAs}}"
-            withCredentials="{{withCredentials}}"
-            timeout="{{timeout}}"
-            last-error="{{lastError}}"
-            last-response="{{lastResponse}}"
-            on-error="onError"
-            on-request="onRequest"
-            on-response="onResponse"></iron-ajax>
+	<template>
+		<iron-ajax
+			id="request"
+			url="{{url}}"
+			params="{{params}}"
+			method="{{method}}"
+			headers="{{computeHeaders(headers, authToken)}}"
+			contentType="{{contentType}}"
+			body="{{body}}"
+			handleAs="{{handleAs}}"
+			withCredentials="{{withCredentials}}"
+			timeout="{{timeout}}"
+			last-error="{{lastError}}"
+			last-response="{{lastResponse}}"
+			on-error="onError"
+			on-request="onRequest"
+			on-response="onResponse"></iron-ajax>
 
-        <iron-localstorage
-            name="XSRF.Token"
-            value="{{xsrfToken}}"
-            use-raw="true"
-            ></iron-localstorage>
-    </template>
-    <script>
-        /* global Promise */
-        'use strict';
+		<iron-localstorage
+			name="XSRF.Token"
+			value="{{xsrfToken}}"
+			use-raw="true"
+			></iron-localstorage>
+	</template>
+	<script>
+		/* global Promise */
+		'use strict';
 
-        Polymer({
-            is: 'd2l-ajax',
-            properties: {
-                auto: {
-                    type: Boolean,
-                    value: false
-                },
-                url: {
-                    type: String
-                },
-                params: {
-                    type: Object,
-                    value: function() {
-                        return {};
-                    }
-                },
-                method: {
-                    type: String,
-                    value: 'GET'
-                },
-                headers: {
-                    type: Object,
-                    value: function() {
-                        return {};
-                    }
-                },
-                contentType: {
-                    type: String,
-                    value: null
-                },
-                body: {
-                    type: Object,
-                    value: null
-                },
-                handleAs: {
-                    type: String,
-                    value: 'json'
-                },
-                withCredentials: {
-                    type: Boolean,
-                    value: false
-                },
-                timeout: {
-                    type: Number,
-                    value: 0
-                },
-                lastResponse: {
-                    type: Object,
-                    notify: true
-                },
-                lastError: {
-                    type: Object,
-                    notify: true
-                },
-                scope: {
-                    type: String,
-                    value: '*:*:*'
-                },
+		Polymer({
+			is: 'd2l-ajax',
+			properties: {
+				auto: {
+					type: Boolean,
+					value: false
+				},
+				url: {
+					type: String
+				},
+				params: {
+					type: Object,
+					value: function() {
+						return {};
+					}
+				},
+				method: {
+					type: String,
+					value: 'GET'
+				},
+				headers: {
+					type: Object,
+					value: function() {
+						return {};
+					}
+				},
+				contentType: {
+					type: String,
+					value: null
+				},
+				body: {
+					type: Object,
+					value: null
+				},
+				handleAs: {
+					type: String,
+					value: 'json'
+				},
+				withCredentials: {
+					type: Boolean,
+					value: false
+				},
+				timeout: {
+					type: Number,
+					value: 0
+				},
+				lastResponse: {
+					type: Object,
+					notify: true
+				},
+				lastError: {
+					type: Object,
+					notify: true
+				},
+				scope: {
+					type: String,
+					value: '*:*:*'
+				},
 
-                authToken: {
-                    type: String,
-                    value: function() {
-                        return null;
-                    }
-                },
-                xsrfToken: String,
-                cachedTokens: {
-                    type: Object,
-                    readOnly: true,
-                    value: function() {
-                        return {};
-                    }
-                },
-                inFlightRequests: {
-                    type: Object,
-                    readOnly: true,
-                    value: function () {
-                        return {};
-                    }
-                },
-                sessionChangedHandler: {
-                    type: Object,
-                    readOnly: true,
-                    value: function () {
-                        return this._onSessionChanged.bind(this);
-                    }
-                }
-            },
-            observers: [
-                '_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
-                    'body, handleAs, withCredentials, timeout, auto)'
-            ],
-            attached: function () {
-                window.addEventListener('storage', this.sessionChangedHandler);
-            },
-            detached: function () {
-                window.removeEventListener('storage', this.sessionChangedHandler);
-            },
-            computeHeaders: function(headers, authToken) {
-                var result = {},
-                    header;
+				authToken: {
+					type: String,
+					value: function() {
+						return null;
+					}
+				},
+				xsrfToken: String,
+				cachedTokens: {
+					type: Object,
+					readOnly: true,
+					value: function() {
+						return {};
+					}
+				},
+				inFlightRequests: {
+					type: Object,
+					readOnly: true,
+					value: function () {
+						return {};
+					}
+				},
+				sessionChangedHandler: {
+					type: Object,
+					readOnly: true,
+					value: function () {
+						return this._onSessionChanged.bind(this);
+					}
+				}
+			},
+			observers: [
+				'_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
+					'body, handleAs, withCredentials, timeout, auto)'
+			],
+			attached: function () {
+				window.addEventListener('storage', this.sessionChangedHandler);
+			},
+			detached: function () {
+				window.removeEventListener('storage', this.sessionChangedHandler);
+			},
+			computeHeaders: function(headers, authToken) {
+				var result = {},
+					header;
 
-                if (authToken) {
-                    result.Authorization = 'Bearer ' + authToken;
-                }
+				if (authToken) {
+					result.Authorization = 'Bearer ' + authToken;
+				}
 
-                if (headers instanceof Object) {
-                    for (header in headers) {
-                        result[header] = headers[header].toString();
-                    }
-                }
+				if (headers instanceof Object) {
+					for (header in headers) {
+						result[header] = headers[header].toString();
+					}
+				}
 
-                return result;
-            },
-            generateRequest: function() {
-                var url = this._parseUrl(this.url);
+				return result;
+			},
+			generateRequest: function() {
+				var url = this._parseUrl(this.url);
 
-                if (this._isRelativeUrl(url)) {
-                    this.$.request.generateRequest();
-                    return;
-                }
+				if (this._isRelativeUrl(url)) {
+					if (this.method !== 'GET' && this.method !== 'HEAD') {
+						this._getXsrfToken()
+							.then(function(xsrfToken) {
+								this.$.request.headers['X-Csrf-Token'] = xsrfToken;
+								this.$.request.generateRequest();
+							}.bind(this));
+					} else {
+						this.$.request.generateRequest();
+					}
+					return;
+				}
 
-                this._getAuthToken()
-                    .then(function(token) {
-                        this.authToken = token;
-                        this.$.request.generateRequest();
-                    }.bind(this))
-                    .catch(function (e) {
-                        this.lastError = e;
-                        this.onError(e);
-                    }.bind(this));
-            },
-            onError: function(e) {
-                var data = e;
-                if (e && e.detail) {
-                    data = e.detail;
-                }
-                this.fire('error', data);
-            },
-            onRequest: function(e) {
-                this.fire('request', e.detail);
-            },
-            onResponse: function(e) {
-                this.fire('response', e.detail);
-            },
-            _requestOptionsChanged: function() {
-                if (this.url == null) {
-                    return;
-                }
-                if (this.auto) {
-                    this.generateRequest();
-                }
-            },
-            _parseUrl: function (url) {
-                var link = document.createElement('a');
-                link.href = url;
-                return link;
-            },
-            _isRelativeUrl: function (url) {
-                // In IE, relative paths have no host or protocol
-                return !url.host
-                    || !url.protocol
-                    || (url.host === location.host
-                        && url.protocol === location.protocol);
-            },
-
-
-            /*
-             * Auth Token
-             */
-
-            _getAuthToken: function() {
-                var self = this,
-                    scope = this.scope;
-
-                return Promise
-                    .resolve()
-                    .then(function () {
-                        var cached = self._getCachedAuthToken.bind(self, scope);
-
-                        return cached()
-                            .catch(function () {
-                                return self._getAuthTokenDeDuped(scope)
-                                    .then(self._cacheToken.bind(self, scope))
-                                    .then(cached);
-                            });
-                    });
-            },
-            _getCachedAuthToken: function (scope) {
-                return Promise
-                    .resolve()
-                    .then(function () {
-                        var cached = JSON.parse(window.sessionStorage.getItem(scope)) || this.cachedTokens[scope];
-
-                        if (cached) {
-                            if (!this._tokenExpired(cached)) {
-                                return cached.access_token;
-                            }
-
-                            delete this.cachedTokens[scope];
-                        }
-
-                        throw new Error('No cached token');
-                    }.bind(this));
-            },
-            _getAuthTokenDeDuped: function (scope) {
-                if (!this.inFlightRequests[scope]) {
-                    this.inFlightRequests[scope] = this._requestAuthToken(scope)
-                        .then(function (token) {
-                            delete this.inFlightRequests[scope];
-                            return token;
-                        }.bind(this))
-                        .catch(function (e) {
-                            delete this.inFlightRequests[scope];
-                            throw e;
-                        }.bind(this));
-                }
-
-                return this.inFlightRequests[scope];
-            },
-            _requestAuthToken: function (scope) {
-                var self = this;
-
-                var authTokenRequest = function (xsrfToken) {
-                    var request = document.createElement('iron-request');
-                    return request
-                        .send({
-                            method: 'POST',
-                            url: '/d2l/lp/auth/oauth2/token',
-                            withCredentials: true,
-                            handleAs: 'json',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Csrf-Token': xsrfToken
-                            },
-                            body: "scope=" + scope
-                        })
-                        .then(function(res) {
-                            return res.response;
-                        });
-                };
-
-                return self._getXsrfToken()
-                    .then(authTokenRequest);
-            },
-            _cacheToken: function (scope, token) {
-                window.sessionStorage.setItem(scope, JSON.stringify(token));
-                this.cachedTokens[scope] = token;
-            },
-            _tokenExpired: function (token) {
-                return this._clock() > token.expires_at;
-            },
-            _clock: function () {
-                return (Date.now() / 1000) | 0;
-            },
-            _onSessionChanged: function (e) {
-                switch (e.key) {
-                    case 'Session.Expired':
-                    case 'Session.UserId':
-                        this._resetAuthTokenCaches();
-                        break;
-                    default:
-                        break;
-                }
-            },
-            _resetAuthTokenCaches: function () {
-                this._setCachedTokens(Object.create(null));
-                this._setInFlightRequests(Object.create(null));
-            },
+				this._getAuthToken()
+					.then(function(token) {
+						this.authToken = token;
+						this.$.request.generateRequest();
+					}.bind(this))
+					.catch(function (e) {
+						this.lastError = e;
+						this.onError(e);
+					}.bind(this));
+			},
+			onError: function(e) {
+				var data = e;
+				if (e && e.detail) {
+					data = e.detail;
+				}
+				this.fire('error', data);
+			},
+			onRequest: function(e) {
+				this.fire('request', e.detail);
+			},
+			onResponse: function(e) {
+				this.fire('response', e.detail);
+			},
+			_requestOptionsChanged: function() {
+				if (this.url == null) {
+					return;
+				}
+				if (this.auto) {
+					this.generateRequest();
+				}
+			},
+			_parseUrl: function (url) {
+				var link = document.createElement('a');
+				link.href = url;
+				return link;
+			},
+			_isRelativeUrl: function (url) {
+				// In IE, relative paths have no host or protocol
+				return !url.host
+					|| !url.protocol
+					|| (url.host === location.host
+						&& url.protocol === location.protocol);
+			},
 
 
-            /*
-             * XSRF Token
-             */
+			/*
+			 * Auth Token
+			 */
 
-            _getXsrfToken: function() {
-                if (this.xsrfToken) {
-                    return Promise.resolve(this.xsrfToken);
-                }
+			_getAuthToken: function() {
+				var self = this,
+					scope = this.scope;
 
-                var self = this,
-                    xsrfRequest = document.createElement('iron-request');
+				return Promise
+					.resolve()
+					.then(function () {
+						var cached = self._getCachedAuthToken.bind(self, scope);
 
-                var request = xsrfRequest
-                    .send({
-                        url: '/d2l/lp/auth/xsrf-tokens',
-                        handleAs: 'json',
-                        withCredentials: true
-                    })
-                    .then(function(res) {
-                        self.set('xsrfToken', res.response.referrerToken);
-                        return res.response.referrerToken;
-                    });
+						return cached()
+							.catch(function () {
+								return self._getAuthTokenDeDuped(scope)
+									.then(self._cacheToken.bind(self, scope))
+									.then(cached);
+							});
+					});
+			},
+			_getCachedAuthToken: function (scope) {
+				return Promise
+					.resolve()
+					.then(function () {
+						var cached = JSON.parse(window.sessionStorage.getItem(scope)) || this.cachedTokens[scope];
 
-                return request;
-            }
-        });
-    </script>
+						if (cached) {
+							if (!this._tokenExpired(cached)) {
+								return cached.access_token;
+							}
+
+							delete this.cachedTokens[scope];
+						}
+
+						throw new Error('No cached token');
+					}.bind(this));
+			},
+			_getAuthTokenDeDuped: function (scope) {
+				if (!this.inFlightRequests[scope]) {
+					this.inFlightRequests[scope] = this._requestAuthToken(scope)
+						.then(function (token) {
+							delete this.inFlightRequests[scope];
+							return token;
+						}.bind(this))
+						.catch(function (e) {
+							delete this.inFlightRequests[scope];
+							throw e;
+						}.bind(this));
+				}
+
+				return this.inFlightRequests[scope];
+			},
+			_requestAuthToken: function (scope) {
+				var self = this;
+
+				var authTokenRequest = function (xsrfToken) {
+					var request = document.createElement('iron-request');
+					return request
+						.send({
+							method: 'POST',
+							url: '/d2l/lp/auth/oauth2/token',
+							withCredentials: true,
+							handleAs: 'json',
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded',
+								'X-Csrf-Token': xsrfToken
+							},
+							body: "scope=" + scope
+						})
+						.then(function(res) {
+							return res.response;
+						});
+				};
+
+				return self._getXsrfToken()
+					.then(authTokenRequest);
+			},
+			_cacheToken: function (scope, token) {
+				window.sessionStorage.setItem(scope, JSON.stringify(token));
+				this.cachedTokens[scope] = token;
+			},
+			_tokenExpired: function (token) {
+				return this._clock() > token.expires_at;
+			},
+			_clock: function () {
+				return (Date.now() / 1000) | 0;
+			},
+			_onSessionChanged: function (e) {
+				switch (e.key) {
+					case 'Session.Expired':
+					case 'Session.UserId':
+						this._resetAuthTokenCaches();
+						break;
+					default:
+						break;
+				}
+			},
+			_resetAuthTokenCaches: function () {
+				this._setCachedTokens(Object.create(null));
+				this._setInFlightRequests(Object.create(null));
+			},
+
+
+			/*
+			 * XSRF Token
+			 */
+
+			_getXsrfToken: function() {
+				if (this.xsrfToken) {
+					return Promise.resolve(this.xsrfToken);
+				}
+
+				var self = this,
+					xsrfRequest = document.createElement('iron-request');
+
+				var request = xsrfRequest
+					.send({
+						url: '/d2l/lp/auth/xsrf-tokens',
+						handleAs: 'json',
+						withCredentials: true
+					})
+					.then(function(res) {
+						self.set('xsrfToken', res.response.referrerToken);
+						return res.response.referrerToken;
+					});
+
+				return request;
+			}
+		});
+	</script>
 </dom-module>
