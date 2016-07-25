@@ -17,9 +17,9 @@
 			timeout="{{timeout}}"
 			last-error="{{lastError}}"
 			last-response="{{lastResponse}}"
-			on-error="onError"
-			on-request="onRequest"
-			on-response="onResponse"></iron-ajax>
+			on-iron-ajax-error="onError"
+			on-iron-ajax-request="onRequest"
+			on-iron-ajax-response="onResponse"></iron-ajax>
 
 		<iron-localstorage
 			name="XSRF.Token"
@@ -176,13 +176,13 @@
 				if (e && e.detail) {
 					data = e.detail;
 				}
-				this.fire('error', data);
+				this.fire('iron-ajax-error', data);
 			},
 			onRequest: function(e) {
-				this.fire('request', e.detail);
+				this.fire('iron-ajax-request', e.detail);
 			},
 			onResponse: function(e) {
-				this.fire('response', e.detail);
+				this.fire('iron-ajax-response', e.detail);
 			},
 			_requestOptionsChanged: function() {
 				if (this.url == null) {
