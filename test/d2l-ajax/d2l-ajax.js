@@ -92,7 +92,7 @@ describe('smoke test', function() {
 					req.respond(404);
 				});
 
-			component.addEventListener('error', function (e) {
+			component.addEventListener('iron-ajax-error', function (e) {
 				expect(e).to.not.be.undefined;
 				expect(component.lastError).to.not.be.undefined;
 				done();
@@ -173,7 +173,7 @@ describe('smoke test', function() {
 					req.respond(404);
 				});
 
-			component.addEventListener('error', function (e) {
+			component.addEventListener('iron-ajax-error', function (e) {
 				expect(e).to.not.be.undefined;
 				expect(component.lastError).to.not.be.undefined;
 				done();
@@ -292,7 +292,7 @@ describe('smoke test', function() {
 					req.respond(200);
 				});
 
-			component.addEventListener('response', function () {
+			component.addEventListener('iron-ajax-response', function () {
 				expect(component.lastResponse).to.not.be.undefined;
 				done();
 			});
@@ -311,7 +311,7 @@ describe('smoke test', function() {
 					req.respond(404);
 				});
 
-			component.addEventListener('error', function () {
+			component.addEventListener('iron-ajax-error', function () {
 				expect(component.lastError).to.not.be.undefined;
 				done();
 			});

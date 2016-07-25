@@ -15,7 +15,8 @@ See the iron-ajax [documentation](https://elements.polymer-project.org/elements/
     url="http://service.api.brightspace.com/"
     headers='{ "Accept": "application/vnd.siren+json\" }'
     handle-as="json"
-    on-response="handleResponse"
+    on-iron-ajax-response="handleResponse"
+    on-iron-ajax-error="handleError"
     last-response="{{response}}"
     ></d2l-ajax>
 ```
