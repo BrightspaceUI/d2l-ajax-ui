@@ -319,4 +319,40 @@ describe('smoke test', function() {
 			component.generateRequest();
 		});
 	});
+
+	describe('isRelativeUrl', function() {
+
+		beforeEach(function() {
+			component = fixture('d2l-ajax-fixture');
+		});
+
+		it('should treat relative URLs as relative', function() {
+			var isRelative = component._isRelativeUrl('/relative/url');
+			expect(isRelative).to.be.true;
+		});
+
+		it('should treat non-relative URLs as non-relative', function() {
+			var isRelative = component._isRelativeUrl('http://foo.com/bar');
+			expect(isRelative).to.be.false;
+		});
+
+		it('should treat URLs with the same host as current page as relative', function() {
+			var locationStub = sinon.stub(component, '_getCurrentLocation')
+				.returns({ host: 'foo.com', protocol: 'http:' });
+			var isRelative = component._isRelativeUrl('http://foo.com/bar');
+			locationStub.restore();
+			expect(isRelative).to.be.true;
+		});
+
+		// IE adds the port (:443) to the inbound URL, which needs to be ignored
+		it('should treat HTTPS URLs with same host as current page as relative', function() {
+			var locationStub = sinon.stub(component, '_getCurrentLocation')
+				.returns({ host: 'foo.com', protocol: 'https:' });
+			var isRelative = component._isRelativeUrl('https://foo.com/bar');
+			locationStub.restore();
+			expect(isRelative).to.be.true;
+		});
+
+	});
+
 });
