@@ -74,5 +74,5 @@ Note: On Windows, there exists an issue with relative paths, which will prevent 
 
 Under Windows, you will likely also run into a problem in brightspace-integration where web-component-shards will fail due to the 'tmp' directory not being able to be deleted, preventing 'npm run serve' from succeeding. A simple workaround is to run the contents of the npm 'serve' script directly after building, and removing the tmp directory manually.
 
-[ci-url]: https://travis-ci.org/Brightspace/d2l-ajax-ui
-[ci-image]: https://travis-ci.org/Brightspace/d2l-ajax-ui.svg?branch=master
+[ci-url]: https://travis-ci.org/BrightspaceUI/ajax
+[ci-image]: https://travis-ci.org/BrightspaceUI/ajax.svg?branch=master
