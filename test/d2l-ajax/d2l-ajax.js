@@ -336,6 +336,7 @@ describe('smoke test', function() {
 			expect(isRelative).to.be.false;
 		});
 
+		// IE adds the port (:80) to the inbound URL, which needs to be ignored
 		it('should treat URLs with the same host as current page as relative', function() {
 			var locationStub = sinon.stub(component, '_getCurrentLocation')
 				.returns({ host: 'foo.com', protocol: 'http:' });
