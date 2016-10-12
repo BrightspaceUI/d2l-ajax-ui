@@ -7,8 +7,8 @@
     "serve": "polyserve --cors",
     "test:lint:js": "eslint test/ --ext .js",
     "test:lint:html": "eslint *.html",
-    "test": "npm run test:lint:js && npm run test:lint:html && wct",
-    "test:no-lint": "wct -p"
+    "test:lint": "npm run test:lint:js && npm run test:lint:html",
+    "test": "npm run test:lint && wct --skip-plugin sauce"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",

@@ -1,7 +1,5 @@
 language: node_js
 node_js: stable
-before_script:
-- npm run test:lint:js
-- npm run test:lint:html
 script:
-- xvfb-run wct
+- npm run test:lint
+- wct --skip-plugin local
