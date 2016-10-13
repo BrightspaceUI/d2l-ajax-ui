@@ -146,9 +146,8 @@
 				return result;
 			},
 			generateRequest: function() {
-				var url = this._parseUrl(this.url);
 
-				if (this._isRelativeUrl(url)) {
+				if (this._isRelativeUrl(this.url)) {
 					if (this.method !== 'GET' && this.method !== 'HEAD') {
 						this._getXsrfToken()
 							.then(function(xsrfToken) {
@@ -184,6 +183,9 @@
 			onResponse: function(e) {
 				this.fire('iron-ajax-response', e.detail);
 			},
+			_getCurrentLocation: function() {
+				return location;
+			},
 			_requestOptionsChanged: function() {
 				if (this.url == null) {
 					return;
@@ -192,17 +194,27 @@
 					this.generateRequest();
 				}
 			},
-			_parseUrl: function (url) {
+			_isRelativeUrl: function(url) {
+
 				var link = document.createElement('a');
 				link.href = url;
-				return link;
-			},
-			_isRelativeUrl: function (url) {
+
+				// IE includes the port in the host
+				var urlHost = link.host;
+				if (urlHost.indexOf(':443') === urlHost.length - 4) {
+					urlHost = urlHost.substr(0, urlHost.length - 4);
+				} else if (urlHost.indexOf(':80') === urlHost.length - 3) {
+					urlHost = urlHost.substr(0, urlHost.length - 3);
+				}
+
+				var currentLocation = this._getCurrentLocation();
+
 				// In IE, relative paths have no host or protocol
-				return !url.host
-					|| !url.protocol
-					|| (url.host === location.host
-						&& url.protocol === location.protocol);
+				return !link.host
+					|| !link.protocol
+					|| (urlHost === currentLocation.host
+						&& link.protocol === currentLocation.protocol);
+
 			},
 
 
