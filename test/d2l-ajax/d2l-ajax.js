@@ -29,7 +29,6 @@ describe('smoke test', function() {
 		setXsrfToken(xsrfTokenValue);
 
 		component = fixture('d2l-ajax-fixture');
-		component.$$('iron-localstorage').reload();
 	});
 
 	afterEach(function () {
@@ -50,9 +49,8 @@ describe('smoke test', function() {
 	}
 
 	describe('XSRF request', function () {
-		it('should send a XSRF request when the XSRF token does not exist in local storage', function (done) {
+		it('should send a XSRF request', function (done) {
 			clearXsrfToken();
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -69,21 +67,9 @@ describe('smoke test', function() {
 				});
 		});
 
-		it('should use xsrf token if it exists in local storage', function (done) {
-			setXsrfToken('oh yeah, awesome');
-			component.$$('iron-localstorage').reload();
-
-			component._getXsrfToken()
-				.then(function(xsrfToken) {
-					expect(xsrfToken).to.equal('oh yeah, awesome');
-					done();
-				});
-		});
-
 		it('should fire error event if XSRF request fails', function (done) {
 			clearXsrfToken();
 			component = fixture('absolute-path-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -164,7 +150,6 @@ describe('smoke test', function() {
 
 		it('should fire error event if auth token request fails', function (done) {
 			component = fixture('absolute-path-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'POST',
@@ -190,7 +175,6 @@ describe('smoke test', function() {
 
 		it('should send a request with no auth header when url is relative', function (done) {
 			component = fixture('relative-path-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -207,7 +191,6 @@ describe('smoke test', function() {
 
 		it('should send a request with XSRF header when url is relative', function(done) {
 			component = fixture('relative-put-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -230,7 +213,6 @@ describe('smoke test', function() {
 
 		it('should send a request with auth header when url is absolute', function (done) {
 			component = fixture('absolute-path-fixture');
-			component.$$('iron-localstorage').reload();
 			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
@@ -247,7 +229,6 @@ describe('smoke test', function() {
 
 		it('should include specified headers in the request', function (done) {
 			component = fixture('custom-headers-fixture');
-			component.$$('iron-localstorage').reload();
 			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
@@ -265,7 +246,6 @@ describe('smoke test', function() {
 
 		it('should include specified headers in the request for relative path', function (done) {
 			component = fixture('custom-headers-fixture-relative-url');
-			component.$$('iron-localstorage').reload();
 			component.cachedTokens[defaultScope] = authToken;
 
 			server.respondWith(
@@ -283,7 +263,6 @@ describe('smoke test', function() {
 
 		it('should set lastResponse after successful request', function (done) {
 			component = fixture('relative-path-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -302,7 +281,6 @@ describe('smoke test', function() {
 
 		it('should set lastError after unsuccessful request', function (done) {
 			component = fixture('relative-path-fixture');
-			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
