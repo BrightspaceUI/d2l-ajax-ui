@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../iron-localstorage/iron-localstorage.html">
 
 <dom-module id="d2l-ajax">
 	<template>
@@ -20,12 +19,6 @@
 			on-iron-ajax-error="onError"
 			on-iron-ajax-request="onRequest"
 			on-iron-ajax-response="onResponse"></iron-ajax>
-
-		<iron-localstorage
-			name="XSRF.Token"
-			value="{{xsrfToken}}"
-			use-raw="true"
-			></iron-localstorage>
 	</template>
 	<script>
 		/* global Promise */
