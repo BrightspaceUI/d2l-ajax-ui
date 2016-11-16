@@ -75,7 +75,7 @@ describe('smoke test', function() {
 
 	describe('Auth token request', function () {
 		afterEach(function () {
-			delete component._resetAuthTokenCaches();
+			component._resetAuthTokenCaches();
 		});
 
 		it('should send an auth token request when auth token does not exist', function (done) {
@@ -170,7 +170,7 @@ describe('smoke test', function() {
 
 	describe('generateRequest', function () {
 		afterEach(function () {
-			delete component._resetAuthTokenCaches();
+			component._resetAuthTokenCaches();
 		});
 
 		it('should send a request with no auth header when url is relative', function (done) {
