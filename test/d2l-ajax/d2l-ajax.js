@@ -75,8 +75,7 @@ describe('smoke test', function() {
 
 	describe('Auth token request', function () {
 		afterEach(function () {
-			delete component.cachedTokens[defaultScope];
-			window.sessionStorage.setItem(defaultScope, null);
+			delete component._resetAuthTokenCaches();
 		});
 
 		it('should send an auth token request when auth token does not exist', function (done) {
@@ -104,10 +103,10 @@ describe('smoke test', function() {
 					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
 				});
 
-			component.cachedTokens[defaultScope] = {
+			component._cacheToken(defaultScope, {
 				access_token: 'token',
 				expires_at: clock() - 1
-			};
+			});
 
 			component._getAuthToken()
 				.then(function(authToken) {
@@ -116,17 +115,8 @@ describe('smoke test', function() {
 				});
 		});
 
-		it('should use sessionStorage token if it exists', function (done) {
-			window.sessionStorage.setItem(defaultScope, JSON.stringify(authToken));
-			component._getAuthToken()
-				.then(function (token) {
-					expect(token).to.equal(authToken.access_token);
-					done();
-				});
-		});
-
 		it('should use cached auth token if it exists', function (done) {
-			component.cachedTokens[defaultScope] = authToken;
+			component._cacheToken(defaultScope, authToken);
 			component._getAuthToken()
 				.then(function (token) {
 					expect(token).to.equal(authToken.access_token);
@@ -180,7 +170,7 @@ describe('smoke test', function() {
 
 	describe('generateRequest', function () {
 		afterEach(function () {
-			delete component.cachedTokens[defaultScope];
+			delete component._resetAuthTokenCaches();
 		});
 
 		it('should send a request with no auth header when url is relative', function (done) {
@@ -223,7 +213,7 @@ describe('smoke test', function() {
 
 		it('should send a request with auth header when url is absolute', function (done) {
 			component = fixture('absolute-path-fixture');
-			component.cachedTokens[defaultScope] = authToken;
+			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
@@ -239,7 +229,7 @@ describe('smoke test', function() {
 
 		it('should include specified headers in the request', function (done) {
 			component = fixture('custom-headers-fixture');
-			component.cachedTokens[defaultScope] = authToken;
+			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
@@ -256,7 +246,7 @@ describe('smoke test', function() {
 
 		it('should include specified headers in the request for relative path', function (done) {
 			component = fixture('custom-headers-fixture-relative-url');
-			component.cachedTokens[defaultScope] = authToken;
+			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
