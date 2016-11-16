@@ -323,8 +323,10 @@
 			_clearCachedTokens: function() {
 				var cachedScopes = JSON.parse(window.sessionStorage.getItem('d2l-ajax-cached-scopes') || '[]');
 				for(var i = 0; i < cachedScopes.length; i++) {
-					this._cacheToken(cachedScopes[i], null);
+					window.sessionStorage.removeItem(cachedScopes[i]);
+					delete this.cachedTokens[cachedScopes[i]];
 				}
+				window.sessionStorage.removeItem('d2l-ajax-cached-scopes');
 			},
 			_clearInFlightRequests: function() {
 				var inFlightKeys = Object.keys(this.inFlightRequests);
