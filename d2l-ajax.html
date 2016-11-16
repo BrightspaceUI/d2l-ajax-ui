@@ -327,8 +327,9 @@
 				}
 			},
 			_clearInFlightRequests: function() {
-				for(var i = 0; i < Object.keys(this.inFlightRequests).length; i++) {
-					var scope = this.inFlightRequests[Object.keys(this.inFlightRequests)[i]];
+				var inFlightKeys = Object.keys(this.inFlightRequests);
+				for(var i = 0; i < inFlightKeys.length; i++) {
+					var scope = this.inFlightRequests[inFlightKeys[i]];
 					delete this.inFlightRequests[scope];
 				}
 			},
