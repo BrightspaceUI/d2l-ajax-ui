@@ -290,6 +290,16 @@
 					.then(authTokenRequest);
 			},
 			_cacheToken: function (scope, token) {
+				var cachedScopes = JSON.parse(window.sessionStorage.getItem('d2l-ajax-cached-scopes') || '[]');
+				var scopeIndex = cachedScopes.indexOf(scope);
+
+				if (scopeIndex !== -1) {
+					cachedScopes[scopeIndex] = scope;
+				} else {
+					cachedScopes.push(scope);
+				}
+
+				window.sessionStorage.setItem('d2l-ajax-cached-scopes', JSON.stringify(cachedScopes));
 				window.sessionStorage.setItem(scope, JSON.stringify(token));
 				this.cachedTokens[scope] = token;
 			},
@@ -310,10 +320,21 @@
 				}
 			},
 			_resetAuthTokenCaches: function () {
-				this._setCachedTokens(Object.create(null));
-				this._setInFlightRequests(Object.create(null));
+				this._clearCachedTokens();
+				this._clearInFlightRequests();
 			},
-
+			_clearCachedTokens: function() {
+				var cachedScopes = JSON.parse(window.sessionStorage.getItem('d2l-ajax-cached-scopes') || '[]');
+				for(var i = 0; i < cachedScopes.length; i++) {
+					this._cacheToken(cachedScopes[i], null);
+				}
+			},
+			_clearInFlightRequests: function() {
+				for(var i = 0; i < Object.keys(this.inFlightRequests).length; i++) {
+					var scope = this.inFlightRequests[Object.keys(this.inFlightRequests)[i]];
+					delete this.inFlightRequests[scope];
+				}
+			},
 
 			/*
 			 * XSRF Token
