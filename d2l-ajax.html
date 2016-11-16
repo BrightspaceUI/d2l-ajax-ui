@@ -329,8 +329,7 @@
 			_clearInFlightRequests: function() {
 				var inFlightKeys = Object.keys(this.inFlightRequests);
 				for(var i = 0; i < inFlightKeys.length; i++) {
-					var scope = this.inFlightRequests[inFlightKeys[i]];
-					delete this.inFlightRequests[scope];
+					delete this.inFlightRequests[inFlightKeys[i]];
 				}
 			},
 
