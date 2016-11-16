@@ -76,6 +76,7 @@ describe('smoke test', function() {
 	describe('Auth token request', function () {
 		afterEach(function () {
 			delete component.cachedTokens[defaultScope];
+			window.sessionStorage.setItem(defaultScope, null);
 		});
 
 		it('should send an auth token request when auth token does not exist', function (done) {
@@ -116,7 +117,7 @@ describe('smoke test', function() {
 		});
 
 		it('should use sessionStorage token if it exists', function (done) {
-			window.sessionStorage[defaultScope] = JSON.stringify(authToken);
+			window.sessionStorage.setItem(defaultScope, JSON.stringify(authToken));
 			component._getAuthToken()
 				.then(function (token) {
 					expect(token).to.equal(authToken.access_token);
@@ -130,6 +131,30 @@ describe('smoke test', function() {
 				.then(function (token) {
 					expect(token).to.equal(authToken.access_token);
 					done();
+				});
+		});
+
+		it('should not use cached tokens after session change', function(done) {
+			server.respondWith(
+					'POST',
+					'/d2l/lp/auth/oauth2/token',
+					function (req) {
+						req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
+					});
+			var alternativeToken = {
+				access_token: 'cool beans',
+				expires_at: Number.MAX_VALUE
+			}
+			component._cacheToken(defaultScope, alternativeToken);
+			component._getAuthToken()
+				.then(function (token) {
+					expect(token).to.equal(alternativeToken.access_token);
+					component._onSessionChanged({ key: 'Session.UserId' });
+					component._getAuthToken()
+						.then(function (token) {
+							expect(token).to.equal(authToken.access_token);
+							done();
+						});
 				});
 		});
 
