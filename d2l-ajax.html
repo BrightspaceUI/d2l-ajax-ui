@@ -24,6 +24,9 @@
 		/* global Promise */
 		'use strict';
 
+		var D2L_AJAX_CACHED_TOKENS = {},
+			D2L_AJAX_IN_FLIGHT_REQUESTS = {};
+
 		Polymer({
 			is: 'd2l-ajax',
 			properties: {
@@ -90,20 +93,6 @@
 					}
 				},
 				xsrfToken: String,
-				cachedTokens: {
-					type: Object,
-					readOnly: true,
-					value: function() {
-						return {};
-					}
-				},
-				inFlightRequests: {
-					type: Object,
-					readOnly: true,
-					value: function () {
-						return {};
-					}
-				},
 				sessionChangedHandler: {
 					type: Object,
 					readOnly: true,
@@ -236,33 +225,32 @@
 				return Promise
 					.resolve()
 					.then(function () {
-						var cached = JSON.parse(window.sessionStorage.getItem(scope)) || this.cachedTokens[scope];
+						var cached = D2L_AJAX_CACHED_TOKENS[scope];
 
 						if (cached) {
 							if (!this._tokenExpired(cached)) {
 								return cached.access_token;
 							}
 
-							delete this.cachedTokens[scope];
+							delete D2L_AJAX_CACHED_TOKENS[scope];
 						}
-
 						throw new Error('No cached token');
 					}.bind(this));
 			},
 			_getAuthTokenDeDuped: function (scope) {
-				if (!this.inFlightRequests[scope]) {
-					this.inFlightRequests[scope] = this._requestAuthToken(scope)
+				if (!D2L_AJAX_IN_FLIGHT_REQUESTS[scope]) {
+					D2L_AJAX_IN_FLIGHT_REQUESTS[scope] = this._requestAuthToken(scope)
 						.then(function (token) {
-							delete this.inFlightRequests[scope];
+							delete D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 							return token;
 						}.bind(this))
 						.catch(function (e) {
-							delete this.inFlightRequests[scope];
+							delete D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 							throw e;
 						}.bind(this));
 				}
 
-				return this.inFlightRequests[scope];
+				return D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 			},
 			_requestAuthToken: function (scope) {
 				var self = this;
@@ -290,8 +278,7 @@
 					.then(authTokenRequest);
 			},
 			_cacheToken: function (scope, token) {
-				window.sessionStorage.setItem(scope, JSON.stringify(token));
-				this.cachedTokens[scope] = token;
+				D2L_AJAX_CACHED_TOKENS[scope] = token;
 			},
 			_tokenExpired: function (token) {
 				return this._clock() > token.expires_at;
@@ -310,10 +297,21 @@
 				}
 			},
 			_resetAuthTokenCaches: function () {
-				this._setCachedTokens(Object.create(null));
-				this._setInFlightRequests(Object.create(null));
+				this._clearCachedTokens();
+				this._clearInFlightRequests();
 			},
-
+			_clearCachedTokens: function() {
+				var cachedTokenKeys = Object.keys(D2L_AJAX_CACHED_TOKENS);
+				for(var i = 0; i < cachedTokenKeys.length; i++) {
+					delete D2L_AJAX_CACHED_TOKENS[cachedTokenKeys[i]];
+				}
+			},
+			_clearInFlightRequests: function() {
+				var inFlightKeys = Object.keys(D2L_AJAX_IN_FLIGHT_REQUESTS);
+				for(var i = 0; i < inFlightKeys.length; i++) {
+					delete D2L_AJAX_IN_FLIGHT_REQUESTS[inFlightKeys[i]];
+				}
+			},
 
 			/*
 			 * XSRF Token
