@@ -4,7 +4,7 @@ function clock() {
 	return (Date.now() / 1000) | 0;
 }
 
-describe('smoke test', function() {
+describe('d2l-ajax', function() {
 	var server,
 		component,
 		defaultScope = "*:*:*",
