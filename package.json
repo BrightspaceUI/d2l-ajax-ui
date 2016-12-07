@@ -3,7 +3,7 @@
   "description": "Wrapper around Polymer's iron-ajax, providing D2L authentication",
   "private": true,
   "scripts": {
-    "build": "browserify d2l-ajax-framed.js | uglifyjs >  d2l-ajax-framed.min.js",
+    "build": "browserify -g uglifyify d2l-ajax-framed.js > d2l-ajax-framed.min.js",
     "postinstall": "bower install",
     "serve": "polyserve --cors",
     "test:lint:js": "eslint test/ --ext .js",
@@ -22,7 +22,7 @@
     "eslint": "^2.4.0",
     "eslint-plugin-html": "^1.4.0",
     "polyserve": "PolymerLabs/polyserve#permissive-cors-option",
-    "uglify-js": "^2.7.5",
+    "uglifyify": "^3.0.4",
     "web-component-tester": "^4.2.2"
   }
 }
