@@ -1,0 +1,24 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="d2l-ajax-framed">
+	<template>
+		<iron-ajax
+			id="request"
+			url="{{url}}"
+			params="{{params}}"
+			method="{{method}}"
+			headers="{{computeHeaders(headers, authToken)}}"
+			contentType="{{contentType}}"
+			body="{{body}}"
+			handleAs="{{handleAs}}"
+			withCredentials="{{withCredentials}}"
+			timeout="{{timeout}}"
+			last-error="{{lastError}}"
+			last-response="{{lastResponse}}"
+			on-iron-ajax-error="onError"
+			on-iron-ajax-request="onRequest"
+			on-iron-ajax-response="onResponse"></iron-ajax>
+	</template>
+	<script src="d2l-ajax-framed.min.js"></script>
+</dom-module>
