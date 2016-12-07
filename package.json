@@ -14,7 +14,7 @@
   "author": "D2L Corporation",
   "license": "Apache-2.0",
   "dependencies": {
-    "frau-jwt": "^1.0.8"
+    "frau-jwt": "^1.1.1"
   },
   "devDependencies": {
     "bower": "^1.7.9",

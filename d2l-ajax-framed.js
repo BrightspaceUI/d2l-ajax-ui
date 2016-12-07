@@ -1,6 +1,6 @@
 'use strict';
 
-var jwt = require('frau-jwt');
+var jwt = require('frau-jwt/framed');
 
 Polymer({
 	is: 'd2l-ajax-framed',
