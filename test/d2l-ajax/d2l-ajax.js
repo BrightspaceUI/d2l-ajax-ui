@@ -12,6 +12,7 @@ describe('d2l-ajax', function() {
 			access_token: 'such access wow',
 			expires_at: Number.MAX_VALUE
 		},
+		xsrfTokenKey = 'XSRF.Token',
 		xsrfTokenValue = 'foo',
 		xsrfResponse = {
 			body: { referrerToken: xsrfTokenValue }
@@ -25,26 +26,39 @@ describe('d2l-ajax', function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
-		server.respondWith(
-			'GET',
-			'/d2l/lp/auth/xsrf-tokens',
-			function (req) {
-				req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
-			});
+		setXsrfToken(xsrfTokenValue);
 
 		component = fixture('d2l-ajax-fixture');
 	});
 
 	afterEach(function () {
 		server.restore();
+		clearXsrfToken();
 	});
 
 	it('should load', function () {
 		expect(component).to.exist;
 	});
 
+	function clearXsrfToken() {
+		window.localStorage.removeItem(xsrfTokenKey);
+	}
+
+	function setXsrfToken(value) {
+		window.localStorage.setItem(xsrfTokenKey, value);
+	}
+
 	describe('XSRF request', function () {
 		it('should send a XSRF request', function (done) {
+			clearXsrfToken();
+
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				function (req) {
+					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
+				});
+
 			component._getXsrfToken()
 				.then(function(xsrfToken) {
 					expect(xsrfToken).to.equal(xsrfResponse.body.referrerToken);
@@ -54,6 +68,7 @@ describe('d2l-ajax', function() {
 		});
 
 		it('should fire error event if XSRF request fails', function (done) {
+			clearXsrfToken();
 			component = fixture('absolute-path-fixture');
 
 			server.respondWith(
