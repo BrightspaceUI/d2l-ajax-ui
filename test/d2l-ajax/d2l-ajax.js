@@ -12,6 +12,7 @@ describe('d2l-ajax', function() {
 			access_token: 'such access wow',
 			expires_at: Number.MAX_VALUE
 		},
+		xsrfTokenKey = 'XSRF.Token',
 		xsrfTokenValue = 'foo',
 		xsrfResponse = {
 			body: { referrerToken: xsrfTokenValue }
@@ -25,26 +26,41 @@ describe('d2l-ajax', function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
-		server.respondWith(
-			'GET',
-			'/d2l/lp/auth/xsrf-tokens',
-			function (req) {
-				req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
-			});
+		setXsrfToken(xsrfTokenValue);
 
 		component = fixture('d2l-ajax-fixture');
+		component.$$('iron-localstorage').reload();
 	});
 
 	afterEach(function () {
 		server.restore();
+		clearXsrfToken();
 	});
 
 	it('should load', function () {
 		expect(component).to.exist;
 	});
 
+	function clearXsrfToken() {
+		window.localStorage.removeItem(xsrfTokenKey);
+	}
+
+	function setXsrfToken(value) {
+		window.localStorage.setItem(xsrfTokenKey, value);
+	}
+
 	describe('XSRF request', function () {
-		it('should send a XSRF request', function (done) {
+		it('should send a XSRF request when the XSRF token does not exist in local storage', function (done) {
+			clearXsrfToken();
+			component.$$('iron-localstorage').reload();
+
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				function (req) {
+					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
+				});
+
 			component._getXsrfToken()
 				.then(function(xsrfToken) {
 					expect(xsrfToken).to.equal(xsrfResponse.body.referrerToken);
@@ -53,8 +69,21 @@ describe('d2l-ajax', function() {
 				});
 		});
 
+		it('should use xsrf token if it exists in local storage', function (done) {
+			setXsrfToken('oh yeah, awesome');
+			component.$$('iron-localstorage').reload();
+
+			component._getXsrfToken()
+				.then(function(xsrfToken) {
+					expect(xsrfToken).to.equal('oh yeah, awesome');
+					done();
+				});
+		});
+
 		it('should fire error event if XSRF request fails', function (done) {
+			clearXsrfToken();
 			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -150,6 +179,7 @@ describe('d2l-ajax', function() {
 
 		it('should fire error event if auth token request fails', function (done) {
 			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'POST',
@@ -191,6 +221,7 @@ describe('d2l-ajax', function() {
 
 		it('should send a request with XSRF header when url is relative', function(done) {
 			component = fixture('relative-put-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -213,6 +244,7 @@ describe('d2l-ajax', function() {
 
 		it('should send a request with auth header when url is absolute', function (done) {
 			component = fixture('absolute-path-fixture');
+			component.$$('iron-localstorage').reload();
 			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
@@ -229,6 +261,7 @@ describe('d2l-ajax', function() {
 
 		it('should include specified headers in the request', function (done) {
 			component = fixture('custom-headers-fixture');
+			component.$$('iron-localstorage').reload();
 			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
@@ -263,6 +296,7 @@ describe('d2l-ajax', function() {
 
 		it('should set lastResponse after successful request', function (done) {
 			component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
@@ -281,6 +315,7 @@ describe('d2l-ajax', function() {
 
 		it('should set lastError after unsuccessful request', function (done) {
 			component = fixture('relative-path-fixture');
+			component.$$('iron-localstorage').reload();
 
 			server.respondWith(
 				'GET',
