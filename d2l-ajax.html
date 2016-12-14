@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
-<link rel="import" href="../iron-localstorage/iron-localstorage.html">
 
 <dom-module id="d2l-ajax">
 	<template>
@@ -20,10 +19,6 @@
 			on-iron-ajax-error="onError"
 			on-iron-ajax-request="onRequest"
 			on-iron-ajax-response="onResponse"></iron-ajax>
-		<iron-localstorage
-			name="XSRF.Token"
-			value="{{xsrfToken}}"
-			use-raw="true"></iron-localstorage>
 	</template>
 	<script>
 		/* global Promise */
@@ -97,7 +92,6 @@
 						return null;
 					}
 				},
-				xsrfToken: String,
 				sessionChangedHandler: {
 					type: Object,
 					readOnly: true,
@@ -323,12 +317,18 @@
 			 */
 
 			_getXsrfToken: function() {
-				if (this.xsrfToken) {
-					return Promise.resolve(this.xsrfToken);
+
+				try {
+					var xsrfToken = window.localStorage.getItem('XSRF.Token');
+				} catch (e) {
+					// likely private browsing mode, continue anyway
 				}
 
-				var self = this,
-					xsrfRequest = document.createElement('iron-request');
+				if (xsrfToken) {
+					return Promise.resolve(xsrfToken);
+				}
+
+				var xsrfRequest = document.createElement('iron-request');
 
 				var request = xsrfRequest
 					.send({
@@ -337,7 +337,11 @@
 						withCredentials: true
 					})
 					.then(function(res) {
-						self.set('xsrfToken', res.response.referrerToken);
+						try {
+							window.localStorage.setItem('XSRF.Token', res.response.referrerToken);
+						} catch (e) {
+							// likely private browsing mode, continue anyway
+						}
 						return res.response.referrerToken;
 					});
 
