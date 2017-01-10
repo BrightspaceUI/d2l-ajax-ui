@@ -91,7 +91,7 @@ Polymer({
 		jwt(this.scope)
 			.then(function(token) {
 				this.authToken = token;
-				this.$.request.generateRequest();
+				this.$$('iron-ajax').generateRequest();
 			}.bind(this))
 			.catch(function(e) {
 				this.onError(e);

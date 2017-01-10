@@ -4,7 +4,6 @@
 <dom-module id="d2l-ajax">
 	<template>
 		<iron-ajax
-			id="request"
 			url="{{url}}"
 			params="{{params}}"
 			method="{{method}}"
@@ -132,11 +131,11 @@
 					if (this.method !== 'GET' && this.method !== 'HEAD') {
 						this._getXsrfToken()
 							.then(function(xsrfToken) {
-								this.$.request.headers['X-Csrf-Token'] = xsrfToken;
-								this.$.request.generateRequest();
+								this.$$('iron-ajax').headers['X-Csrf-Token'] = xsrfToken;
+								this.$$('iron-ajax').generateRequest();
 							}.bind(this));
 					} else {
-						this.$.request.generateRequest();
+						this.$$('iron-ajax').generateRequest();
 					}
 					return;
 				}
@@ -144,7 +143,7 @@
 				this._getAuthToken()
 					.then(function(token) {
 						this.authToken = token;
-						this.$.request.generateRequest();
+						this.$$('iron-ajax').generateRequest();
 					}.bind(this))
 					.catch(function (e) {
 						this.lastError = e;
