@@ -83,7 +83,9 @@
 			],
 			attached: function () {
 				Polymer.RenderStatus.afterNextRender(this, function() {
-					window.addEventListener('storage', this.sessionChangedHandler);
+					if (this.isAttached) {
+						window.addEventListener('storage', this.sessionChangedHandler);
+					}
 				});
 			},
 			detached: function () {
