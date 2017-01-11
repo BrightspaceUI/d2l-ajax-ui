@@ -6,7 +6,10 @@ Polymer({
 	is: 'd2l-ajax-framed',
 	properties: {
 		auto: Boolean,
-		url: String,
+		url: {
+			type: Object,
+			value: null
+		},
 		params: {
 			type: Object,
 			value: function() {
@@ -24,7 +27,10 @@ Polymer({
 			}
 		},
 		contentType: String,
-		body: Object,
+		body: {
+			type: Object,
+			value: null
+		},
 		handleAs: String,
 		withCredentials: Boolean,
 		timeout: Number,

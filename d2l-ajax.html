@@ -30,7 +30,10 @@
 			is: 'd2l-ajax',
 			properties: {
 				auto: Boolean,
-				url: String,
+				url: {
+					type: String,
+					value: null
+				},
 				params: {
 					type: Object,
 					value: function() {
@@ -48,7 +51,10 @@
 					}
 				},
 				contentType: String,
-				body: Object,
+				body: {
+					type: Object,
+					value: null
+				},
 				handleAs: String,
 				withCredentials: Boolean,
 				timeout: Number,
