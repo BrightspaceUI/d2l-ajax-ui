@@ -5,13 +5,8 @@ var jwt = require('frau-jwt/framed');
 Polymer({
 	is: 'd2l-ajax-framed',
 	properties: {
-		auto: {
-			type: Boolean,
-			value: false
-		},
-		url: {
-			type: String
-		},
+		auto: Boolean,
+		url: String,
 		params: {
 			type: Object,
 			value: function() {
@@ -28,26 +23,11 @@ Polymer({
 				return {};
 			}
 		},
-		contentType: {
-			type: String,
-			value: null
-		},
-		body: {
-			type: Object,
-			value: null
-		},
-		handleAs: {
-			type: String,
-			value: 'json'
-		},
-		withCredentials: {
-			type: Boolean,
-			value: false
-		},
-		timeout: {
-			type: Number,
-			value: 0
-		},
+		contentType: String,
+		body: Object,
+		handleAs: String,
+		withCredentials: Boolean,
+		timeout: Number,
 		lastResponse: {
 			type: Object,
 			notify: true
@@ -68,8 +48,7 @@ Polymer({
 		}
 	},
 	observers: [
-		'_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
-			'body, handleAs, withCredentials, timeout, auto)'
+		'_requestOptionsChanged(url, params.*, body)'
 	],
 	computeHeaders: function(headers, authToken) {
 		var result = {},

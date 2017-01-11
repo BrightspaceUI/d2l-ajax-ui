@@ -29,13 +29,8 @@
 		Polymer({
 			is: 'd2l-ajax',
 			properties: {
-				auto: {
-					type: Boolean,
-					value: false
-				},
-				url: {
-					type: String
-				},
+				auto: Boolean,
+				url: String,
 				params: {
 					type: Object,
 					value: function() {
@@ -52,26 +47,11 @@
 						return {};
 					}
 				},
-				contentType: {
-					type: String,
-					value: null
-				},
-				body: {
-					type: Object,
-					value: null
-				},
-				handleAs: {
-					type: String,
-					value: 'json'
-				},
-				withCredentials: {
-					type: Boolean,
-					value: false
-				},
-				timeout: {
-					type: Number,
-					value: 0
-				},
+				contentType: String,
+				body: Object,
+				handleAs: String,
+				withCredentials: Boolean,
+				timeout: Number,
 				lastResponse: {
 					type: Object,
 					notify: true
@@ -84,7 +64,6 @@
 					type: String,
 					value: '*:*:*'
 				},
-
 				authToken: {
 					type: String,
 					value: function() {
@@ -100,11 +79,12 @@
 				}
 			},
 			observers: [
-				'_requestOptionsChanged(url, method, params.*, headers, contentType, ' +
-					'body, handleAs, withCredentials, timeout, auto)'
+				'_requestOptionsChanged(url, params.*, body)'
 			],
 			attached: function () {
-				window.addEventListener('storage', this.sessionChangedHandler);
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					window.addEventListener('storage', this.sessionChangedHandler);
+				});
 			},
 			detached: function () {
 				window.removeEventListener('storage', this.sessionChangedHandler);
