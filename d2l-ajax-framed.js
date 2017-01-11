@@ -90,9 +90,11 @@ Polymer({
 		this.fire('iron-ajax-error', data);
 	},
 	onRequest: function(e) {
+		e.stopPropagation();
 		this.fire('iron-ajax-request', e.detail);
 	},
 	onResponse: function(e) {
+		e.stopPropagation();
 		this.fire('iron-ajax-response', e.detail);
 	},
 	_requestOptionsChanged: function() {
