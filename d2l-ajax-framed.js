@@ -83,6 +83,9 @@ Polymer({
 			}.bind(this));
 	},
 	onError: function(e) {
+		if (e.stopPropagation) {
+			e.stopPropagation();
+		}
 		var data = e;
 		if (e && e.detail) {
 			data = e.detail;
@@ -90,9 +93,11 @@ Polymer({
 		this.fire('iron-ajax-error', data);
 	},
 	onRequest: function(e) {
+		e.stopPropagation();
 		this.fire('iron-ajax-request', e.detail);
 	},
 	onResponse: function(e) {
+		e.stopPropagation();
 		this.fire('iron-ajax-response', e.detail);
 	},
 	_requestOptionsChanged: function() {
