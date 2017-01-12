@@ -29,6 +29,14 @@ Install dependencies
 npm install
 ```
 
+For most changes, please also update `d2l-ajax-framed`, which is a version of the component that can work within iframes. The two components should have identical behaviour, outside of dealing with authentication. Once you have made changes, run
+
+```shell
+npm run build
+```
+
+which will browserify and uglify `d2l-ajax-framed.js` into `d2l-ajax-framed.min.js`, and commit the resulting output with your change.
+
 ## Testing
 
 Manual testing can be done with the demo page, accessible via polyserve.
