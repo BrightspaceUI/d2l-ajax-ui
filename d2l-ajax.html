@@ -114,7 +114,6 @@
 				return result;
 			},
 			generateRequest: function() {
-
 				if (this._isRelativeUrl(this.url)) {
 					if (this.method !== 'GET' && this.method !== 'HEAD') {
 						this._getXsrfToken()
@@ -139,6 +138,9 @@
 					}.bind(this));
 			},
 			onError: function(e) {
+				if (e.stopPropagation) {
+					e.stopPropagation();
+				}
 				var data = e;
 				if (e && e.detail) {
 					data = e.detail;

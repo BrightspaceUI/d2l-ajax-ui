@@ -83,6 +83,9 @@ Polymer({
 			}.bind(this));
 	},
 	onError: function(e) {
+		if (e.stopPropagation) {
+			e.stopPropagation();
+		}
 		var data = e;
 		if (e && e.detail) {
 			data = e.detail;
