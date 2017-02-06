@@ -54,7 +54,7 @@ Polymer({
 		}
 	},
 	observers: [
-		'_requestOptionsChanged(url, params.*, body)'
+		'_requestOptionsChanged(url, params.*, body, auto)'
 	],
 	computeHeaders: function(headers, authToken) {
 		var result = {},
