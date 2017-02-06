@@ -94,6 +94,11 @@
 					}
 				});
 			},
+			ready: function () {
+				if (this.url !== null && this.auto) {
+					this.generateRequest();
+				}
+			},
 			detached: function () {
 				window.removeEventListener('storage', this.sessionChangedHandler);
 			},
