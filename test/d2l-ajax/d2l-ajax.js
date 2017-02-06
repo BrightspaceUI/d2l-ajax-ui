@@ -324,8 +324,7 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should send a request on ready if url is set and auto is true', function() {
-			component = fixture('auto-fixture');
+		it('should send a request on creation if url is set and auto is true', function() {
 			var requestSent = false;
 
 			server.respondWith(
@@ -336,13 +335,13 @@ describe('d2l-ajax', function() {
 					req.respond(200);
 				});
 
-			component.ready();
+			component = fixture('auto-fixture');
+
 			fakeTimer.tick(1);
 			expect(requestSent).to.equal(true);
 		});
 
-		it('should not send a request on ready if url is not set and auto is true', function() {
-			component = fixture('auto-fixture-no-url');
+		it('should not send a request on creation if url is not set and auto is true', function() {
 			var requestSent = false;
 
 			server.respondWith(
@@ -353,13 +352,13 @@ describe('d2l-ajax', function() {
 					req.respond(200);
 				});
 
+			component = fixture('auto-fixture-no-url');
 			component.ready();
 			fakeTimer.tick(1);
 			expect(requestSent).to.equal(false);
 		});
 
-		it('should not send a request on ready if url is set and auto is false', function() {
-			component = fixture('relative-path-fixture');
+		it('should not send a request on creation if url is set and auto is false', function() {
 			var requestSent = false;
 
 			server.respondWith(
@@ -370,6 +369,7 @@ describe('d2l-ajax', function() {
 					req.respond(200);
 				});
 
+			component = fixture('relative-path-fixture');
 			component.ready();
 			fakeTimer.tick(1);
 			expect(requestSent).to.equal(false);
