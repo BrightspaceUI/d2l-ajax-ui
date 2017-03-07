@@ -412,4 +412,50 @@ describe('d2l-ajax', function() {
 
 	});
 
+	describe('default attribute values', function() {
+
+		beforeEach(function() {
+			component = fixture('d2l-ajax-fixture');
+		});
+
+		it('should default "content-type" to null', function() {
+			expect(component.contentType).to.be.undefined;	// should be null
+			expect(component.$$('iron-ajax').contentType).to.be.null;
+		});
+
+		it('should default "handle-as" to "json"', function() {
+			expect(component.handleAs).to.be.undefined;	// should be 'json'
+			expect(component.$$('iron-ajax').handleAs).to.equal('json');
+		});
+
+		it('should default "with-credentials" to "false"', function() {
+			expect(component.withCredentials).to.be.undefined;	// should be false
+			expect(component.$$('iron-ajax').withCredentials).to.be.false;
+		});
+
+	});
+
+	describe('attribute binding', function() {
+
+		beforeEach(function() {
+			component = fixture('custom-attributes-fixture');
+		});
+
+		it('should bind "content-type" attribute', function() {
+			expect(component.contentType).to.equal('content-type-value');
+			expect(component.$$('iron-ajax').contentType).to.equal('content-type-value');
+		});
+
+		it('should bind "handle-as" attribute', function() {
+			expect(component.handleAs).to.equal('handle-as-value');
+			expect(component.$$('iron-ajax').handleAs).to.equal('handle-as-value');
+		});
+
+		it('should bind "with-credentials" attribute', function() {
+			expect(component.withCredentials).to.be.true;
+			expect(component.$$('iron-ajax').withCredentials).to.be.true;
+		});
+
+	});
+
 });
