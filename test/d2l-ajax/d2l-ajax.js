@@ -200,6 +200,20 @@ describe('d2l-ajax', function() {
 			component._resetAuthTokenCaches();
 		});
 
+		it('should return a Promise', function(done) {
+			component = fixture('relative-path-fixture');
+
+			server.respondWith(
+				'GET',
+				component.url,
+				[200, {}, JSON.stringify({})]);
+
+			component.generateRequest().then(function(request) {
+				expect(JSON.stringify(request.response)).to.equal(JSON.stringify({}));
+				done();
+			});
+		});
+
 		it('should send a request with no auth header when url is relative', function (done) {
 			component = fixture('relative-path-fixture');
 

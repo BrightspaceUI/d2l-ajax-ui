@@ -116,23 +116,21 @@
 			generateRequest: function() {
 				if (this._isRelativeUrl(this.url)) {
 					if (this.method !== 'GET' && this.method !== 'HEAD') {
-						this._getXsrfToken()
+						return this._getXsrfToken()
 							.then(function(xsrfToken) {
 								this.$$('iron-ajax').headers['X-Csrf-Token'] = xsrfToken;
-								this.$$('iron-ajax').generateRequest();
+								return this.$$('iron-ajax').generateRequest().completes;
 							}.bind(this));
 					} else {
-						this.$$('iron-ajax').generateRequest();
+						return this.$$('iron-ajax').generateRequest().completes;
 					}
-					return;
 				}
 
-				this._getAuthToken()
+				return this._getAuthToken()
 					.then(function(token) {
 						this.authToken = token;
-						this.$$('iron-ajax').generateRequest();
-					}.bind(this))
-					.catch(function (e) {
+						return this.$$('iron-ajax').generateRequest().completes;
+					}.bind(this)).catch(function (e) {
 						this.lastError = e;
 						this.onError(e);
 					}.bind(this));
