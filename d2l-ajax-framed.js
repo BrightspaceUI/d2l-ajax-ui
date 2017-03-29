@@ -73,14 +73,12 @@ Polymer({
 		return result;
 	},
 	generateRequest: function() {
-		jwt(this.scope)
+		return jwt(this.scope)
 			.then(function(token) {
 				this.authToken = token;
-				this.$$('iron-ajax').generateRequest();
+				return this.$$('iron-ajax').generateRequest().completes;
 			}.bind(this))
-			.catch(function(e) {
-				this.onError(e);
-			}.bind(this));
+			.catch(this.onError.bind(this));
 	},
 	onError: function(e) {
 		if (e.stopPropagation) {

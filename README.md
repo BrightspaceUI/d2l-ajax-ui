@@ -21,6 +21,27 @@ See the iron-ajax [documentation](https://elements.polymer-project.org/elements/
     ></d2l-ajax>
 ```
 
+`d2l-ajax` and `d2l-ajax-framed` also both support a Promise-based API. This can be nicer to use when sequential requests are required. For example,
+
+```html
+<d2l-ajax
+    id="request"
+    url="http://service.api.brightspace.com/">
+</d2l-ajax>
+```
+
+```js
+var request = document.getElementById('request');
+request.generateRequest().then(function(request) {
+	// The request's response will be in request.response
+	console.log(JSON.stringify(request.response));
+	// Can now do the next request(s) in the sequence
+	return otherRequest.generateRequest();
+}).then(function(otherRequest) {
+	// etc.
+});
+```
+
 ## Building
 
 Install dependencies
