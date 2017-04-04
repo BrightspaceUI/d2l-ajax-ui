@@ -9,6 +9,8 @@ Inspired by [superagent-d2l-session-auth](https://github.com/Brightspace/superag
 
 See the iron-ajax [documentation](https://elements.polymer-project.org/elements/iron-ajax) for a full list of available options.
 
+test
+
 ```html
 <d2l-ajax
     auto
