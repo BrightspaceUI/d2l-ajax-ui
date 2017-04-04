@@ -139,6 +139,7 @@
 					}.bind(this)).catch(function (e) {
 						this.lastError = e;
 						this.onError(e);
+						return Promise.reject(e);
 					}.bind(this));
 			},
 			onError: function(e) {

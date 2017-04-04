@@ -82,8 +82,11 @@ Polymer({
 			.then(function(token) {
 				this.authToken = token;
 				return this.$$('iron-ajax').generateRequest().completes;
-			}.bind(this))
-			.catch(this.onError.bind(this));
+			}.bind(this),
+			function(e){
+				this.onError(e);
+				return Promise.reject(e);
+			}.bind(this));
 	},
 	onError: function(e) {
 		if (e.stopPropagation) {
