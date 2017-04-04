@@ -51,6 +51,11 @@ Polymer({
 			value: function() {
 				return null;
 			}
+		},
+		debounceDuration: {
+			type: Number,
+			value: 0,
+			notify: true
 		}
 	},
 	observers: [
