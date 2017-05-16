@@ -24,6 +24,6 @@
     "eslint-plugin-html": "^1.4.0",
     "polyserve": "PolymerLabs/polyserve#permissive-cors-option",
     "uglifyify": "^3.0.4",
-    "web-component-tester": "^4.2.2"
+    "web-component-tester": "^6.0.0"
   }
 }
