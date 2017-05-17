@@ -1,5 +1,7 @@
 /* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
+'use strict';
+
 function clock() {
 	return (Date.now() / 1000) | 0;
 }
@@ -8,7 +10,7 @@ describe('d2l-ajax', function() {
 	var server,
 		fakeTimer,
 		component,
-		defaultScope = "*:*:*",
+		defaultScope = '*:*:*',
 		authToken = {
 			access_token: 'such access wow',
 			expires_at: Number.MAX_VALUE
@@ -23,7 +25,7 @@ describe('d2l-ajax', function() {
 			body: { access_token: authToken.access_token, expires_at: authToken.expires_at }
 		};
 
-	beforeEach(function () {
+	beforeEach(function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 		fakeTimer = sinon.useFakeTimers();
@@ -33,13 +35,13 @@ describe('d2l-ajax', function() {
 		component = fixture('d2l-ajax-fixture');
 	});
 
-	afterEach(function () {
+	afterEach(function() {
 		server.restore();
 		fakeTimer.restore();
 		clearXsrfToken();
 	});
 
-	it('should load', function () {
+	it('should load', function() {
 		expect(component).to.exist;
 	});
 
@@ -51,15 +53,15 @@ describe('d2l-ajax', function() {
 		window.localStorage.setItem(xsrfTokenKey, value);
 	}
 
-	describe('XSRF request', function () {
-		it('should send a XSRF request when the XSRF token does not exist in local storage', function (done) {
+	describe('XSRF request', function() {
+		it('should send a XSRF request when the XSRF token does not exist in local storage', function(done) {
 			clearXsrfToken();
 
 			server.respondWith(
 				'GET',
 				'/d2l/lp/auth/xsrf-tokens',
-				function (req) {
-					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
+				function(req) {
+					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body));
 				});
 
 			component._getXsrfToken()
@@ -69,7 +71,7 @@ describe('d2l-ajax', function() {
 				});
 		});
 
-		it('should use xsrf token if it exists in local storage', function (done) {
+		it('should use xsrf token if it exists in local storage', function(done) {
 			setXsrfToken('oh yeah, awesome');
 
 			component._getXsrfToken()
@@ -79,18 +81,18 @@ describe('d2l-ajax', function() {
 				});
 		});
 
-		it('should fire error event if XSRF request fails', function (done) {
+		it('should fire error event if XSRF request fails', function(done) {
 			clearXsrfToken();
 			component = fixture('absolute-path-fixture');
 
 			server.respondWith(
 				'GET',
 				'/d2l/lp/auth/xsrf-tokens',
-				function (req) {
+				function(req) {
 					req.respond(404);
 				});
 
-			component.addEventListener('iron-ajax-error', function (e) {
+			component.addEventListener('iron-ajax-error', function(e) {
 				expect(e).to.not.be.undefined;
 				expect(component.lastError).to.not.be.undefined;
 				done();
@@ -100,16 +102,16 @@ describe('d2l-ajax', function() {
 		});
 	});
 
-	describe('Auth token request', function () {
-		afterEach(function () {
+	describe('Auth token request', function() {
+		afterEach(function() {
 			component._resetAuthTokenCaches();
 		});
 
-		it('should send an auth token request when auth token does not exist', function (done) {
+		it('should send an auth token request when auth token does not exist', function(done) {
 			server.respondWith(
 				'POST',
 				'/d2l/lp/auth/oauth2/token',
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['x-csrf-token']).to.equal(xsrfResponse.body.referrerToken);
 					expect(req.requestBody).to.equal('scope=' + defaultScope);
 					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
@@ -122,11 +124,11 @@ describe('d2l-ajax', function() {
 				});
 		});
 
-		it('should send an auth token request when auth token is expired', function (done) {
+		it('should send an auth token request when auth token is expired', function(done) {
 			server.respondWith(
 				'POST',
 				'/d2l/lp/auth/oauth2/token',
-				function (req) {
+				function(req) {
 					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
 				});
 
@@ -142,10 +144,10 @@ describe('d2l-ajax', function() {
 				});
 		});
 
-		it('should use cached auth token if it exists', function (done) {
+		it('should use cached auth token if it exists', function(done) {
 			component._cacheToken(defaultScope, authToken);
 			component._getAuthToken()
-				.then(function (token) {
+				.then(function(token) {
 					expect(token).to.equal(authToken.access_token);
 					done();
 				});
@@ -155,37 +157,37 @@ describe('d2l-ajax', function() {
 			server.respondWith(
 					'POST',
 					'/d2l/lp/auth/oauth2/token',
-					function (req) {
+					function(req) {
 						req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
 					});
 			var alternativeToken = {
 				access_token: 'cool beans',
 				expires_at: Number.MAX_VALUE
-			}
+			};
 			component._cacheToken(defaultScope, alternativeToken);
 			component._getAuthToken()
-				.then(function (token) {
+				.then(function(token) {
 					expect(token).to.equal(alternativeToken.access_token);
 					component._onSessionChanged({ key: 'Session.UserId' });
 					component._getAuthToken()
-						.then(function (token) {
+						.then(function(token) {
 							expect(token).to.equal(authToken.access_token);
 							done();
 						});
 				});
 		});
 
-		it('should fire error event if auth token request fails', function (done) {
+		it('should fire error event if auth token request fails', function(done) {
 			component = fixture('absolute-path-fixture');
 
 			server.respondWith(
 				'POST',
 				'/d2l/lp/auth/oauth2/token',
-				function (req) {
+				function(req) {
 					req.respond(404);
 				});
 
-			component.addEventListener('iron-ajax-error', function (e) {
+			component.addEventListener('iron-ajax-error', function(e) {
 				expect(e).to.not.be.undefined;
 				expect(component.lastError).to.not.be.undefined;
 				done();
@@ -195,8 +197,8 @@ describe('d2l-ajax', function() {
 		});
 	});
 
-	describe('generateRequest', function () {
-		afterEach(function () {
+	describe('generateRequest', function() {
+		afterEach(function() {
 			component._resetAuthTokenCaches();
 		});
 
@@ -214,13 +216,13 @@ describe('d2l-ajax', function() {
 			});
 		});
 
-		it('should send a request with no auth header when url is relative', function (done) {
+		it('should send a request with no auth header when url is relative', function(done) {
 			component = fixture('relative-path-fixture');
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['authorization']).to.not.be.defined;
 					expect(req.requestHeaders['x-csrf-token']).to.not.be.defined;
 					req.respond(200);
@@ -236,8 +238,8 @@ describe('d2l-ajax', function() {
 			server.respondWith(
 				'GET',
 				'/d2l/lp/auth/xsrf-tokens',
-				function (req) {
-					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body))
+				function(req) {
+					req.respond(200, xsrfResponse.headers, JSON.stringify(xsrfResponse.body));
 				});
 
 			server.respondWith(
@@ -252,14 +254,14 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should send a request with auth header when url is absolute', function (done) {
+		it('should send a request with auth header when url is absolute', function(done) {
 			component = fixture('absolute-path-fixture');
 			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['authorization']).to.equal('Bearer ' + authToken.access_token);
 					req.respond(200);
 					done();
@@ -268,14 +270,14 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should include specified headers in the request', function (done) {
+		it('should include specified headers in the request', function(done) {
 			component = fixture('custom-headers-fixture');
 			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					expect(req.requestHeaders['x-my-header']).to.equal('my value');
 					req.respond(200);
@@ -285,14 +287,14 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should include specified headers in the request for relative path', function (done) {
+		it('should include specified headers in the request for relative path', function(done) {
 			component = fixture('custom-headers-fixture-relative-url');
 			component._cacheToken(defaultScope, authToken);
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					expect(req.requestHeaders['x-my-header']).to.equal('my value');
 					req.respond(200);
@@ -302,17 +304,17 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should set lastResponse after successful request', function (done) {
+		it('should set lastResponse after successful request', function(done) {
 			component = fixture('relative-path-fixture');
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					req.respond(200);
 				});
 
-			component.addEventListener('iron-ajax-response', function () {
+			component.addEventListener('iron-ajax-response', function() {
 				expect(component.lastResponse).to.not.be.undefined;
 				done();
 			});
@@ -320,17 +322,17 @@ describe('d2l-ajax', function() {
 			component.generateRequest();
 		});
 
-		it('should set lastError after unsuccessful request', function (done) {
+		it('should set lastError after unsuccessful request', function(done) {
 			component = fixture('relative-path-fixture');
 
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					req.respond(404);
 				});
 
-			component.addEventListener('iron-ajax-error', function () {
+			component.addEventListener('iron-ajax-error', function() {
 				expect(component.lastError).to.not.be.undefined;
 				done();
 			});
@@ -344,7 +346,7 @@ describe('d2l-ajax', function() {
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					requestSent = true;
 					req.respond(200);
 				});
@@ -361,7 +363,7 @@ describe('d2l-ajax', function() {
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					requestSent = true;
 					req.respond(200);
 				});
@@ -378,7 +380,7 @@ describe('d2l-ajax', function() {
 			server.respondWith(
 				'GET',
 				component.url,
-				function (req) {
+				function(req) {
 					requestSent = true;
 					req.respond(200);
 				});

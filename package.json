@@ -7,7 +7,7 @@
     "postinstall": "bower install",
     "serve": "polyserve --cors",
     "test": "npm run test:lint:js && npm run test:lint:wc && npm run test:unit",
-    "test:lint:js": "eslint --ext .js,.html .",
+    "test:lint:js": "eslint --ext .js,.html . test/ demo/",
     "test:lint:wc": "polymer lint --rules=polymer-2-hybrid",
     "test:unit": "polymer test --skip-plugin sauce"
   },
@@ -20,6 +20,7 @@
     "bower": "^1.7.9",
     "browserify": "^13.1.1",
     "eslint": "^2.4.0",
+    "eslint-config-brightspace": "^0.2.4",
     "eslint-plugin-html": "^1.4.0",
     "polymer-cli": "^1.0.0",
     "polyserve": "PolymerLabs/polyserve#permissive-cors-option",

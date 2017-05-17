@@ -83,7 +83,7 @@ Polymer({
 				this.authToken = token;
 				return this.$$('iron-ajax').generateRequest().completes;
 			}.bind(this),
-			function(e){
+			function(e) {
 				this.onError(e);
 				return Promise.reject(e);
 			}.bind(this));
@@ -107,7 +107,7 @@ Polymer({
 		this.fire('iron-ajax-response', e.detail);
 	},
 	_requestOptionsChanged: function() {
-		if (this.url == null) {
+		if (this.url === null) {
 			return;
 		}
 		if (this.auto) {

@@ -80,7 +80,7 @@
 				sessionChangedHandler: {
 					type: Object,
 					readOnly: true,
-					value: function () {
+					value: function() {
 						return this._onSessionChanged.bind(this);
 					}
 				},
@@ -93,14 +93,14 @@
 			observers: [
 				'_requestOptionsChanged(url, params.*, body, auto)'
 			],
-			attached: function () {
-				Polymer.RenderStatus.afterNextRender(this, function() {
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, /* @this */ function() {
 					if (this.isAttached) {
 						window.addEventListener('storage', this.sessionChangedHandler);
 					}
 				});
 			},
-			detached: function () {
+			detached: function() {
 				window.removeEventListener('storage', this.sessionChangedHandler);
 			},
 			computeHeaders: function(headers, authToken) {
@@ -136,7 +136,7 @@
 					.then(function(token) {
 						this.authToken = token;
 						return this.$$('iron-ajax').generateRequest().completes;
-					}.bind(this)).catch(function (e) {
+					}.bind(this)).catch(function(e) {
 						this.lastError = e;
 						this.onError(e);
 						return Promise.reject(e);
@@ -164,7 +164,7 @@
 				return location;
 			},
 			_requestOptionsChanged: function() {
-				if (this.url == null) {
+				if (this.url === null) {
 					return;
 				}
 				if (this.auto) {
@@ -172,7 +172,6 @@
 				}
 			},
 			_isRelativeUrl: function(url) {
-
 				var link = document.createElement('a');
 				link.href = url;
 
@@ -191,9 +190,7 @@
 					|| !link.protocol
 					|| (urlHost === currentLocation.host
 						&& link.protocol === currentLocation.protocol);
-
 			},
-
 
 			/*
 			 * Auth Token
@@ -205,21 +202,21 @@
 
 				return Promise
 					.resolve()
-					.then(function () {
+					.then(function() {
 						var cached = self._getCachedAuthToken.bind(self, scope);
 
 						return cached()
-							.catch(function () {
+							.catch(function() {
 								return self._getAuthTokenDeDuped(scope)
 									.then(self._cacheToken.bind(self, scope))
 									.then(cached);
 							});
 					});
 			},
-			_getCachedAuthToken: function (scope) {
+			_getCachedAuthToken: function(scope) {
 				return Promise
 					.resolve()
-					.then(function () {
+					.then(function() {
 						var cached = D2L_AJAX_CACHED_TOKENS[scope];
 
 						if (cached) {
@@ -232,14 +229,14 @@
 						throw new Error('No cached token');
 					}.bind(this));
 			},
-			_getAuthTokenDeDuped: function (scope) {
+			_getAuthTokenDeDuped: function(scope) {
 				if (!D2L_AJAX_IN_FLIGHT_REQUESTS[scope]) {
 					D2L_AJAX_IN_FLIGHT_REQUESTS[scope] = this._requestAuthToken(scope)
-						.then(function (token) {
+						.then(function(token) {
 							delete D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 							return token;
 						}.bind(this))
-						.catch(function (e) {
+						.catch(function(e) {
 							delete D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 							throw e;
 						}.bind(this));
@@ -247,10 +244,10 @@
 
 				return D2L_AJAX_IN_FLIGHT_REQUESTS[scope];
 			},
-			_requestAuthToken: function (scope) {
+			_requestAuthToken: function(scope) {
 				var self = this;
 
-				var authTokenRequest = function (xsrfToken) {
+				var authTokenRequest = function(xsrfToken) {
 					var request = document.createElement('iron-request');
 					return request
 						.send({
@@ -262,7 +259,7 @@
 								'Content-Type': 'application/x-www-form-urlencoded',
 								'X-Csrf-Token': xsrfToken
 							},
-							body: "scope=" + scope
+							body: 'scope=' + scope
 						})
 						.then(function(res) {
 							return res.response;
@@ -272,16 +269,16 @@
 				return self._getXsrfToken()
 					.then(authTokenRequest);
 			},
-			_cacheToken: function (scope, token) {
+			_cacheToken: function(scope, token) {
 				D2L_AJAX_CACHED_TOKENS[scope] = token;
 			},
-			_tokenExpired: function (token) {
+			_tokenExpired: function(token) {
 				return this._clock() > token.expires_at;
 			},
-			_clock: function () {
+			_clock: function() {
 				return (Date.now() / 1000) | 0;
 			},
-			_onSessionChanged: function (e) {
+			_onSessionChanged: function(e) {
 				switch (e.key) {
 					case 'Session.Expired':
 					case 'Session.UserId':
@@ -291,19 +288,19 @@
 						break;
 				}
 			},
-			_resetAuthTokenCaches: function () {
+			_resetAuthTokenCaches: function() {
 				this._clearCachedTokens();
 				this._clearInFlightRequests();
 			},
 			_clearCachedTokens: function() {
 				var cachedTokenKeys = Object.keys(D2L_AJAX_CACHED_TOKENS);
-				for(var i = 0; i < cachedTokenKeys.length; i++) {
+				for (var i = 0; i < cachedTokenKeys.length; i++) {
 					delete D2L_AJAX_CACHED_TOKENS[cachedTokenKeys[i]];
 				}
 			},
 			_clearInFlightRequests: function() {
 				var inFlightKeys = Object.keys(D2L_AJAX_IN_FLIGHT_REQUESTS);
-				for(var i = 0; i < inFlightKeys.length; i++) {
+				for (var i = 0; i < inFlightKeys.length; i++) {
 					delete D2L_AJAX_IN_FLIGHT_REQUESTS[inFlightKeys[i]];
 				}
 			},
