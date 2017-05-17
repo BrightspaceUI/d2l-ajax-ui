@@ -6,11 +6,10 @@
     "build": "browserify -g uglifyify d2l-ajax-framed.js > d2l-ajax-framed.min.js",
     "postinstall": "bower install",
     "serve": "polyserve --cors",
-    "test:lint:js": "eslint test/ --ext .js",
-    "test:lint:html": "eslint *.html",
-    "test:lint": "npm run test:lint:js && npm run test:lint:html",
-    "test:no-lint": "wct --skip-plugin sauce -p",
-    "test": "npm run test:lint && npm run test:no-lint"
+    "test": "npm run test:lint:js && npm run test:lint:wc && npm run test:unit",
+    "test:lint:js": "eslint --ext .js,.html .",
+    "test:lint:wc": "polymer lint --rules=polymer-2-hybrid",
+    "test:unit": "polymer test --skip-plugin sauce"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
@@ -22,6 +21,7 @@
     "browserify": "^13.1.1",
     "eslint": "^2.4.0",
     "eslint-plugin-html": "^1.4.0",
+    "polymer-cli": "^1.0.0",
     "polyserve": "PolymerLabs/polyserve#permissive-cors-option",
     "uglifyify": "^3.0.4",
     "web-component-tester": "^6.0.0"

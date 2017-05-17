@@ -5,6 +5,9 @@
   },
   "plugins": ["html"],
   "globals": {
-    "Polymer": false
+    "Polymer": false,
+    "WCT": false,
+    "Promise": false,
+    "require": false
   }
 }
