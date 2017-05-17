@@ -10,10 +10,10 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "^1.4.0",
-    "iron-ajax": "PolymerElements/iron-ajax#^1.4.0"
+    "polymer": "^1.8.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.4.4"
   },
   "devDependencies": {
-    "web-component-tester": "^4.2.2"
+    "web-component-tester": "^6.0.0"
   }
 }
