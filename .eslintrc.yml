@@ -1,0 +1,11 @@
+extends:
+  - brightspace
+plugins:
+  - html
+env:
+  browser: true
+globals:
+  Polymer: false
+  WCT: false
+  Promise: false
+  require: false
