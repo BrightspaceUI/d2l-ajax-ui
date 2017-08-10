@@ -1,0 +1,7 @@
+{
+  "extends": "brightspace/polymer-config",
+  "globals": {
+    "Promise": false,
+    "require": false
+  }
+}
