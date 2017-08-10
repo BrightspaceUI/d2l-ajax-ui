@@ -4,6 +4,7 @@
   "license": "Apache-2.0",
   "ignore": [
     "**/.*",
+    "CODEOWNERS",
     "node_modules",
     "bower_components",
     "test",
