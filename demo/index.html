@@ -3,23 +3,33 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-		<title>Demo</title>
+		<title>d2l-ajax demo</title>
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-		<script>
-			'use strict';
-			window.Polymer = {
-				dom: 'shadow',
-				lazyRegister: true
-			};
-		</script>
+		<link rel="import" href="../../promise-polyfill/promise-polyfill-lite.html">
+		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
 		<link rel="import" href="../d2l-ajax.html">
+		<custom-style>
+			<style is="custom-style" include="demo-pages-shared-styles"></style>
+		</custom-style>
 	</head>
 	<body unresolved>
-		<main>
-			<d2l-ajax
-				auto
-				url="data.json"
-				></d2l-ajax>
-		</main>
+		<div class="vertical-section-container centered">
+			<h3>d2l-ajax demo</h3>
+			<demo-snippet>
+				<template>
+					<d2l-ajax id="request" url="data.json"></d2l-ajax>
+					<pre id="response"></pre>
+					<script>
+					var request = document.getElementById('request');
+					document.addEventListener('WebComponentsReady', function() {
+						request.generateRequest().then(function(request) {
+							document.getElementById('response').innerText = JSON.stringify(request.response);
+						});
+					});
+					</script>
+				</template>
+			</demo-snippet>
+		</div>
 	</body>
 </html>

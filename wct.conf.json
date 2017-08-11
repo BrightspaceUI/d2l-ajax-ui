@@ -28,7 +28,7 @@
 				{
 					"browserName": "safari",
 					"platform": "OS X 10.12",
-					"version": ""
+					"version": "10.0"
 				},
 				{
 					"browserName": "microsoftedge",

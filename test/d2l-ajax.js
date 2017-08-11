@@ -155,11 +155,11 @@ describe('d2l-ajax', function() {
 
 		it('should not use cached tokens after session change', function(done) {
 			server.respondWith(
-					'POST',
-					'/d2l/lp/auth/oauth2/token',
-					function(req) {
-						req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
-					});
+				'POST',
+				'/d2l/lp/auth/oauth2/token',
+				function(req) {
+					req.respond(200, authTokenResponse.headers, JSON.stringify(authTokenResponse.body));
+				});
 			var alternativeToken = {
 				access_token: 'cool beans',
 				expires_at: Number.MAX_VALUE
