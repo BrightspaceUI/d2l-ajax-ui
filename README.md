@@ -1,3 +1,4 @@
+> Note: This component is deprecated, please use [d2l-fetch](https://github.com/Brightspace/d2l-fetch) instead.
 
 # d2l-ajax
 
