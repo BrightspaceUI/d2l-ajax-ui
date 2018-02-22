@@ -1,5 +1,7 @@
-# &lt;d2l-ajax&gt;
 
+# d2l-ajax
+
+[![Bower version][bower-image]][bower-url]
 [![Build status][ci-image]][ci-url]
 
 Wrapper for [iron-ajax](https://github.com/PolymerElements/iron-ajax), providing D2L authentication.
@@ -103,5 +105,7 @@ Note: On Windows, there exists an issue with relative paths, which will prevent 
 
 Under Windows, you will likely also run into a problem in brightspace-integration where web-component-shards will fail due to the 'tmp' directory not being able to be deleted, preventing 'npm run serve' from succeeding. A simple workaround is to run the contents of the npm 'serve' script directly after building, and removing the tmp directory manually.
 
+[bower-url]: http://bower.io/search/?q=d2l-ajax
+[bower-image]: https://badge.fury.io/bo/d2l-ajax.svg
 [ci-url]: https://travis-ci.org/BrightspaceUI/ajax
 [ci-image]: https://travis-ci.org/BrightspaceUI/ajax.svg?branch=master
