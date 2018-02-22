@@ -3,13 +3,17 @@
   "description": "Wrapper around Polymer's iron-ajax, providing D2L authentication",
   "license": "Apache-2.0",
   "ignore": [
+    "demo",
     "test",
     ".editorconfig",
     ".eslintrc.json",
     ".eslintignore",
     ".gitignore",
     ".travis.yml",
-    "CODEOWNERS"
+    "CODEOWNERS",
+    "package.json",
+    "polymer.json",
+    "wct.conf.json"
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2",
