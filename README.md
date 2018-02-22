@@ -1,3 +1,4 @@
+> Note: This repo is largely deprecated, in favour of [d2l-fetch](https://github.com/Brightspace/d2l-fetch).
 
 # d2l-ajax
 
